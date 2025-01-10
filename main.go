@@ -18,13 +18,16 @@ type Room struct {
 type Link struct {
 	from     string
 	to       string
-	capacity int
+	NumberofAnts int
 }
 
 func parseInput(filename string) (int, []Room, []Link, error) {
+contents, err := ValidContent(filename)
+
+fmt.Println(contents)
 	file, err := os.Open(filename)
 	if err != nil {
-		return 0, nil, nil, err
+		fmt.Println("ERROR: oppening file", err)
 	}
 	defer file.Close()
 
@@ -62,7 +65,7 @@ func parseInput(filename string) (int, []Room, []Link, error) {
 
 		if strings.Contains(line, "-") {
 			parts := strings.Split(line, "-")
-			links = append(links, Link{from: parts[0], to: parts[1], capacity: 1})
+			links = append(links, Link{from: parts[0], to: parts[1], NumberofAnts: 1})
 		} else {
 			parts := strings.Fields(line)
 			if len(parts) != 3 {
@@ -85,16 +88,50 @@ func parseInput(filename string) (int, []Room, []Link, error) {
 	return ants, rooms, links, nil
 }
 
+
+func ValidContent(filename string)([]string, error){
+	fileContent, err := os.Open(filename)
+	if err != nil{
+		return nil, fmt.Errorf("Error reading file", err)
+	}
+	defer fileContent.Close()
+
+	ValidContent := []string{}
+
+	scanner := bufio.NewScanner(fileContent)
+
+	for scanner.Scan(){
+		lines := scanner.Text()
+		if (lines != "" && !strings.HasPrefix(lines, "#")) || strings.HasPrefix(lines,"##end") || strings.HasPrefix(lines, "##start"){
+			ValidContent = append(ValidContent, lines)
+		}
+	}
+
+	if err := scanner.Err();err != nil{
+		return nil, fmt.Errorf("Error reading file", err)
+	}
+
+	return ValidContent, nil
+}
+
+
 func main() {
 	if len(os.Args) != 2 {
 		fmt.Println("Usage: go run . <input_file>")
 		return
 	}
-
+	
+	
 	// Parse input
 	ants, rooms, links, err := parseInput(os.Args[1])
 	fmt.Println(ants)
 	fmt.Println(rooms)
 	fmt.Println(links)
 	fmt.Println(err)
+	
+		argument:= os.Args[1]
+		if !strings.HasSuffix(argument, ".txt"){
+			fmt.Println("ERROR: invalid data format, inputfile must be .txt")
+			return
+		}
 }
