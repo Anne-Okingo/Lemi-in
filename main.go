@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -16,15 +17,15 @@ type Room struct {
 }
 
 type Link struct {
-	from     string
-	to       string
+	from         string
+	to           string
 	NumberofAnts int
 }
 
 func parseInput(filename string) (int, []Room, []Link, error) {
-contents, err := ValidContent(filename)
+	contents, err := ValidContent(filename)
 
-fmt.Println(contents)
+	fmt.Println(contents)
 	file, err := os.Open(filename)
 	if err != nil {
 		fmt.Println("ERROR: oppening file", err)
@@ -39,7 +40,7 @@ fmt.Println(contents)
 
 	for scanner.Scan() {
 		line := scanner.Text()
-		
+
 		if line == "" {
 			continue
 		}
@@ -88,50 +89,59 @@ fmt.Println(contents)
 	return ants, rooms, links, nil
 }
 
-
-func ValidContent(filename string)([]string, error){
+func ValidContent(filename string) ([]string, error) {
 	fileContent, err := os.Open(filename)
-	if err != nil{
+	if err != nil {
 		return nil, fmt.Errorf("Error reading file", err)
 	}
 	defer fileContent.Close()
+
+	// Validate line content with regular expression
+	ValidlineRegex := regexp.MustCompile(`^[A-Za-z0-9\s\-]+$`)
 
 	ValidContent := []string{}
 
 	scanner := bufio.NewScanner(fileContent)
 
-	for scanner.Scan(){
+	for scanner.Scan() {
 		lines := scanner.Text()
-		if (lines != "" && !strings.HasPrefix(lines, "#")) || strings.HasPrefix(lines,"##end") || strings.HasPrefix(lines, "##start"){
+		// ignore empty lines and comments leaving ##start and ##end
+		if strings.Contains(lines, "##end") || strings.Contains(lines, "##start") {
 			ValidContent = append(ValidContent, lines)
+		}
+
+		if lines != "" {
+			// check if lines match the regexp
+			if ValidlineRegex.MatchString(lines) {
+
+				ValidContent = append(ValidContent, lines)
+			}
 		}
 	}
 
-	if err := scanner.Err();err != nil{
+	if err := scanner.Err(); err != nil {
 		return nil, fmt.Errorf("Error reading file", err)
 	}
 
 	return ValidContent, nil
 }
 
-
 func main() {
 	if len(os.Args) != 2 {
 		fmt.Println("Usage: go run . <input_file>")
 		return
 	}
-	
-	
+
 	// Parse input
 	ants, rooms, links, err := parseInput(os.Args[1])
 	fmt.Println(ants)
 	fmt.Println(rooms)
 	fmt.Println(links)
 	fmt.Println(err)
-	
-		argument:= os.Args[1]
-		if !strings.HasSuffix(argument, ".txt"){
-			fmt.Println("ERROR: invalid data format, inputfile must be .txt")
-			return
-		}
+
+	argument := os.Args[1]
+	if !strings.HasSuffix(argument, ".txt") {
+		fmt.Println("ERROR: invalid data format, inputfile must be .txt")
+		return
+	}
 }
