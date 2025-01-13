@@ -24,51 +24,32 @@ type Link struct {
 
 func parseInput(filename string) (int, []Room, []Link, error) {
 	contents, err := ValidContent(filename)
-
-	fmt.Println(contents)
-	file, err := os.Open(filename)
 	if err != nil {
-		fmt.Println("ERROR: oppening file", err)
+		return 0, nil, nil, fmt.Errorf("ERROR: invalid data format",err)
 	}
-	defer file.Close()
 
-	scanner := bufio.NewScanner(file)
-	var ants int
+	if len(contents) == 0{
+		return 0, nil, nil, fmt.Errorf("ERROR: invalid data format",err)
+	}
+
 	var rooms []Room
 	var links []Link
 	var nextIsStart, nextIsEnd bool
 
-	for scanner.Scan() {
-		line := scanner.Text()
+	// validate number of ants
+	ants, err := strconv.Atoi(contents[0])
+	if err != nil || ants <= 0 {
+		return 0, nil, nil, fmt.Errorf("ERROR: invalid data format, invalid number of Ants")
+	}
 
-		if line == "" {
-			continue
-		}
-		if line == "##start" {
-			nextIsStart = true
-			continue
-		}
-		if line == "##end" {
-			nextIsEnd = true
-			continue
-		}
-		if strings.HasPrefix(line, "#") {
-			continue
-		}
-
-		if ants == 0 {
-			ants, err = strconv.Atoi(line)
-			if err != nil || ants <= 0 {
-				return 0, nil, nil, fmt.Errorf("invalid number of ants")
-			}
-			continue
-		}
-
-		if strings.Contains(line, "-") {
-			parts := strings.Split(line, "-")
+	contents = contents[1:]
+	for _, str := range contents {
+		if strings.Contains(str, "-") {
+			parts := strings.Split(str, "-")
 			links = append(links, Link{from: parts[0], to: parts[1], NumberofAnts: 1})
 		} else {
-			parts := strings.Fields(line)
+			parts := strings.Fields(str)
+			fmt.Println(parts)
 			if len(parts) != 3 {
 				continue
 			}
@@ -113,7 +94,6 @@ func ValidContent(filename string) ([]string, error) {
 		if lines != "" {
 			// check if lines match the regexp
 			if ValidlineRegex.MatchString(lines) {
-
 				ValidContent = append(ValidContent, lines)
 			}
 		}
