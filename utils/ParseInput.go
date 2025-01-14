@@ -1,132 +1,170 @@
 package utils
 
 import (
+	"bufio"
 	"fmt"
 	"os"
-	"bufio"
 	"strconv"
 	"strings"
-
 	"lemin/models"
 )
 
-func ValidContent(filename string) ([]string, error) {
-	fileContent, err := os.Open(filename)
+func ParseInput(filename string) (*models.Graph, error) {
+	file, err := os.Open(filename)
 	if err != nil {
-		return nil, fmt.Errorf("error reading file: %v", err)
+		return nil, fmt.Errorf("invalid data format, error reading file: %v", err)
 	}
-	defer fileContent.Close()
+	defer file.Close()
 
-	validContent := []string{}
-	scanner := bufio.NewScanner(fileContent)
+	graph := &models.Graph{
+		Rooms: make(map[string]*models.ARoom),
+	}
+	
+	scanner := bufio.NewScanner(file)
+	isStartRoom := false
+	isEndRoom := false
+	startCount := 0
+	endCount := 0
+	tunnels := make(map[string]bool) // Track unique tunnels
 
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
 		if line == "" {
 			continue
 		}
-		validContent = append(validContent, line)
-	}
 
-	if err := scanner.Err(); err != nil {
-		return nil, fmt.Errorf("error scanning file: %v", err)
-	}
+		// Skip comments that aren't commands
+		if strings.HasPrefix(line, "#") && !strings.HasPrefix(line, "##") {
+			continue
+		}
 
-	return validContent, nil
-}
+		// Parse number of ants (first non-comment line)
+		if graph.AntCount == 0 {
+			antCount, err := strconv.Atoi(line)
+			if err != nil || antCount <= 0 {
+				return nil, fmt.Errorf("invalid data format, invalid number of ants")
+			}
+			graph.AntCount = antCount
+			continue
+		}
 
-func ParseInput(filename string) (int, []structures.Room, []structures.Link, error) {
-	contents, err := ValidContent(filename)
-	if err != nil {
-		return 0, nil, nil, fmt.Errorf("ERROR: invalid data format: %v", err)
-	}
-
-	if len(contents) == 0 {
-		return 0, nil, nil, fmt.Errorf("ERROR: invalid data format: empty file")
-	}
-
-	// Parse number of ants
-	ants, err := strconv.Atoi(contents[0])
-	if err != nil || ants <= 0 {
-		return 0, nil, nil, fmt.Errorf("ERROR: invalid data format, invalid number of Ants")
-	}
-
-	var rooms []structures.Room
-	var links []structures.Link
-	var nextIsStart, nextIsEnd bool
-
-	// Parse rooms and links
-	for i := 1; i < len(contents); i++ {
-		line := contents[i]
-
-		// Handle commands
+		// Handle start/end commands
 		if line == "##start" {
-			nextIsStart = true
+			isStartRoom = true
+			startCount++
+			if startCount > 1 {
+				return nil, fmt.Errorf("invalid data format, multiple start rooms")
+			}
 			continue
 		}
 		if line == "##end" {
-			nextIsEnd = true
-			continue
-		}
-		if strings.HasPrefix(line, "#") {
-			continue
-		}
-
-		// Handle links
-		if strings.Contains(line, "-") {
-			parts := strings.Split(line, "-")
-			if len(parts) == 2 && parts[0] != "" && parts[1] != "" {
-				links = append(links, structures.Link{From: parts[0], To: parts[1]})
+			isEndRoom = true
+			endCount++
+			if endCount > 1 {
+				return nil, fmt.Errorf("invalid data format, multiple end rooms")
 			}
 			continue
 		}
 
-		// Handle rooms
+		// Parse Rooms
 		parts := strings.Fields(line)
-		if len(parts) != 3 {
+		if len(parts) == 3 {
+			// Validate room name
+			if strings.HasPrefix(parts[0], "L") || strings.HasPrefix(parts[0], "#") {
+				return nil, fmt.Errorf("invalid data format, room name cannot start with 'L' or '#'")
+			}
+			if strings.Contains(parts[0], " ") {
+				return nil, fmt.Errorf("invalid data format, room name cannot contain spaces")
+			}
+			
+			// Check for duplicate rooms
+			if _, exists := graph.Rooms[parts[0]]; exists {
+				return nil, fmt.Errorf("invalid data format, duplicate room: %s", parts[0])
+			}
+
+			// Parse coordinates
+			x, errX := strconv.Atoi(parts[1])
+			y, errY := strconv.Atoi(parts[2])
+			if errX != nil || errY != nil {
+				return nil, fmt.Errorf("invalid data format, invalid coordinates for room: %s", parts[0])
+			}
+
+			room := &models.ARoom{
+				Name:        parts[0],
+				XCoordinate: x,
+				YCoordinate: y,
+				Links:       make([]string, 0),
+			}
+
+			if isStartRoom {
+				graph.StartRoom = room.Name
+				isStartRoom = false
+			}
+			if isEndRoom {
+				graph.EndRoom = room.Name
+				isEndRoom = false
+			}
+			
+			graph.Rooms[room.Name] = room
 			continue
 		}
 
-		// Validate coordinates
-		x, errX := strconv.Atoi(parts[1])
-		y, errY := strconv.Atoi(parts[2])
-		if errX != nil || errY != nil {
+		// Parse Links
+		if strings.Contains(line, "-") {
+			parts := strings.Split(line, "-")
+			if len(parts) != 2 {
+				return nil, fmt.Errorf("invalid data format, invalid link format: %s", line)
+			}
+
+			from, to := parts[0], parts[1]
+			
+			// Validate rooms exist
+			if _, ok := graph.Rooms[from]; !ok {
+				return nil, fmt.Errorf("invalid data format, link references unknown room: %s", from)
+			}
+			if _, ok := graph.Rooms[to]; !ok {
+				return nil, fmt.Errorf("invalid data format, link references unknown room: %s", to)
+			}
+
+			// Check for duplicate tunnels
+			tunnelKey := fmt.Sprintf("%s-%s", min(from, to), max(from, to))
+			if tunnels[tunnelKey] {
+				return nil, fmt.Errorf("invalid data format, duplicate tunnel between rooms %s and %s", from, to)
+			}
+			tunnels[tunnelKey] = true
+
+			graph.Rooms[from].Links = append(graph.Rooms[from].Links, to)
+			graph.Rooms[to].Links = append(graph.Rooms[to].Links, from)
 			continue
 		}
 
-		// Check for invalid room names
-		if strings.HasPrefix(parts[0], "L") || strings.HasPrefix(parts[0], "#") {
-			continue
-		}
-
-		room := structures.Room{
-			Name:    parts[0],
-			X:       x,
-			Y:       y,
-			IsStart: nextIsStart,
-			IsEnd:   nextIsEnd,
-		}
-
-		rooms = append(rooms, room)
-		nextIsStart = false
-		nextIsEnd = false
+		return nil, fmt.Errorf("invalid data format, invalid line: %s", line)
 	}
 
-	// Verify start and end rooms
-	hasStart := false
-	hasEnd := false
-	for _, room := range rooms {
-		if room.IsStart {
-			hasStart = true
-		}
-		if room.IsEnd {
-			hasEnd = true
-		}
+	// Final validation
+	if graph.StartRoom == "" {
+		return nil, fmt.Errorf("invalid data format, no start room found")
+	}
+	if graph.EndRoom == "" {
+		return nil, fmt.Errorf("invalid data format, no end room found")
+	}
+	if len(graph.Rooms) == 0 {
+		return nil, fmt.Errorf("invalid data format, no rooms found")
 	}
 
-	if !hasStart || !hasEnd {
-		return 0, nil, nil, fmt.Errorf("ERROR: invalid data format, missing start or end room")
-	}
+	return graph, nil
+}
 
-	return ants, rooms, links, nil
+func min(a, b string) string {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+func max(a, b string) string {
+	if a > b {
+		return a
+	}
+	return b
 }

@@ -1,26 +1,18 @@
-package structures
+package models
 
-type Colony struct {
-	NumberofAnts    int
-	Rooms struct{}
-	Link struct{}
-	Start string
-	End   string
+type Graph struct {
+	AntCount  int
+	AntNames  []string
+	Rooms     map[string]*ARoom
+	AllPaths  [][]string
+	StartRoom string
+	EndRoom   string
 }
 
-type Link struct {
-	From string
-	To   string
-}
-
-type Path struct{
-	Rooms []string
-}
-
-type Room struct{
-	Name    string
-	X       int
-	Y       int
-	IsStart bool
-	IsEnd   bool
+type ARoom struct {
+	Name        string
+	XCoordinate int
+	YCoordinate int
+	Links       []string
+	Visited     bool
 }
