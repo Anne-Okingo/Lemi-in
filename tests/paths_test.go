@@ -149,3 +149,40 @@ func TestFindPaths_BidirectionalLinks(t *testing.T) {
 		}
 	}
 }
+
+func TestFindPaths_MultipleLinksFromOneRoom(t *testing.T) {
+	links := []models.Link{
+		{From: "A", To: "B"},
+		{From: "A", To: "C"},
+		{From: "B", To: "D"},
+		{From: "C", To: "D"},
+		{From: "D", To: "E"},
+	}
+
+	startRoom := "A"
+	endRoom := "E"
+
+	expectedPaths := [][]string{
+		{"A", "B", "D", "E"},
+		{"A", "C", "D", "E"},
+	}
+
+	paths := utils.FindPaths(startRoom, endRoom, links)
+
+	if len(paths) != len(expectedPaths) {
+		t.Errorf("Expected %d paths, but got %d", len(expectedPaths), len(paths))
+	}
+
+	for _, expectedPath := range expectedPaths {
+		found := false
+		for _, path := range paths {
+			if reflect.DeepEqual(path, expectedPath) {
+				found = true
+				break
+			}
+		}
+		if !found {
+			t.Errorf("Expected path %v not found in result", expectedPath)
+		}
+	}
+}
