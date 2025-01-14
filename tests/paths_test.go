@@ -1,8 +1,10 @@
 package test
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
+	"time"
 
 	"lemin/models"
 	"lemin/utils"
@@ -184,5 +186,38 @@ func TestFindPaths_MultipleLinksFromOneRoom(t *testing.T) {
 		if !found {
 			t.Errorf("Expected path %v not found in result", expectedPath)
 		}
+	}
+}
+
+func TestFindPaths_LargeMaze(t *testing.T) {
+	// Create a large number of rooms and links
+	numRooms := 1000
+	links := make([]models.Link, numRooms-1)
+	for i := 0; i < numRooms-1; i++ {
+		links[i] = models.Link{
+			From: fmt.Sprintf("room%d", i),
+			To:   fmt.Sprintf("room%d", i+1),
+		}
+	}
+
+	startRoom := "room0"
+	endRoom := fmt.Sprintf("room%d", numRooms-1)
+
+	// Measure execution time
+	start := time.Now()
+	paths := utils.FindPaths(startRoom, endRoom, links)
+	duration := time.Since(start)
+
+	// Check if the function completes within a reasonable time (e.g., 1 second)
+	if duration > time.Second {
+		t.Errorf("FindPaths took too long: %v", duration)
+	}
+
+	// Verify the result
+	if len(paths) != 1 {
+		t.Errorf("Expected 1 path, got %d", len(paths))
+	}
+	if len(paths[0]) != numRooms {
+		t.Errorf("Expected path length of %d, got %d", numRooms, len(paths[0]))
 	}
 }
