@@ -125,3 +125,27 @@ func TestFindPaths_SameStartAndEnd(t *testing.T) {
 		t.Errorf("Expected empty slice, but got %v", paths)
 	}
 }
+
+func TestFindPaths_BidirectionalLinks(t *testing.T) {
+	links := []models.Link{
+		{From: "A", To: "B"},
+		{From: "B", To: "C"},
+		{From: "C", To: "D"},
+	}
+
+	paths := utils.FindPaths("A", "D", links)
+
+	expectedPaths := [][]string{
+		{"A", "B", "C", "D"},
+	}
+
+	if len(paths) != len(expectedPaths) {
+		t.Errorf("Expected %d paths, but got %d", len(expectedPaths), len(paths))
+	}
+
+	for i, path := range paths {
+		if !reflect.DeepEqual(path, expectedPaths[i]) {
+			t.Errorf("Path %d: expected %v, but got %v", i, expectedPaths[i], path)
+		}
+	}
+}
