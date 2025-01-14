@@ -36,11 +36,13 @@ func ValidContent(filename string) ([]string, error) {
 }
 
 func ParseInput(filename string) (int, []models.Room, []models.Link, error) {
+	// Check file for valid content
 	contents, err := ValidContent(filename)
 	if err != nil {
 		return 0, nil, nil, fmt.Errorf("ERROR: invalid data format: %v", err)
 	}
 
+	// Handle empty file
 	if len(contents) == 0 {
 		return 0, nil, nil, fmt.Errorf("ERROR: invalid data format: empty file")
 	}
@@ -99,6 +101,7 @@ func ParseInput(filename string) (int, []models.Room, []models.Link, error) {
 			continue
 		}
 
+		// Extract room info
 		room := models.Room{
 			Name:    parts[0],
 			X:       x,
@@ -107,6 +110,8 @@ func ParseInput(filename string) (int, []models.Room, []models.Link, error) {
 			IsEnd:   nextIsEnd,
 		}
 
+		// append room to rooms
+		// Reset nextIsStart and nextIsEnd
 		rooms = append(rooms, room)
 		nextIsStart = false
 		nextIsEnd = false
@@ -124,6 +129,7 @@ func ParseInput(filename string) (int, []models.Room, []models.Link, error) {
 		}
 	}
 
+	// handle files missing start or end rooms
 	if !hasStart || !hasEnd {
 		return 0, nil, nil, fmt.Errorf("ERROR: invalid data format, missing start or end room")
 	}
