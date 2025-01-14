@@ -96,3 +96,30 @@ func TestParseInput_EmptyFile(t *testing.T) {
 		t.Errorf("Expected 0 links for empty file, got: %d", len(links))
 	}
 }
+
+func TestParseInput_InvalidAnts(t *testing.T) {
+	// Create a temporary file with invalid input
+	tmpfile, err := os.CreateTemp("", "test_invalid_ants")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.Remove(tmpfile.Name())
+	// Write invalid input to the file
+	_, err = tmpfile.WriteString("0\n")
+	if err != nil {
+		t.Fatal(err)
+	}
+	tmpfile.Close()
+	// Call parseInput with the temporary file
+	ants, rooms, links, err := utils.ParseInput(tmpfile.Name())
+	// Check the results
+	if err == nil {
+		t.Error("Expected an error, but got nil")
+	}
+	if ants != 0 || rooms != nil || links != nil {
+		t.Errorf("Expected (0, nil, nil) for invalid input, but got (%d, %v, %v)", ants, rooms, links)
+	}
+	if err.Error() != "ERROR: invalid data format, invalid number of Ants" {
+		t.Errorf("Expected error message 'ERROR: invalid data format, invalid number of Ants', but got '%s'", err.Error())
+	}
+}
