@@ -4,6 +4,7 @@ import (
 	"os"
 	"testing"
 
+	"lemin/models"
 	"lemin/utils"
 )
 
@@ -121,5 +122,148 @@ func TestParseInput_InvalidAnts(t *testing.T) {
 	}
 	if err.Error() != "ERROR: invalid data format, invalid number of Ants" {
 		t.Errorf("Expected error message 'ERROR: invalid data format, invalid number of Ants', but got '%s'", err.Error())
+	}
+}
+
+func TestParseInput_IdentifiesStartRoom(t *testing.T) {
+	tempFile, err := os.CreateTemp("", "test_input_*.txt")
+	if err != nil {
+		t.Fatalf("Failed to create temporary file: %v", err)
+	}
+	defer os.Remove(tempFile.Name())
+	input := `3
+##start
+start 0 1
+room1 2 3
+room2 4 5
+start-room1
+start-room2
+`
+	if _, err := tempFile.WriteString(input); err != nil {
+		t.Fatalf("Failed to write to temporary file: %v", err)
+	}
+	tempFile.Close()
+	ants, rooms, _, err := utils.ParseInput(tempFile.Name())
+	if err != nil {
+		t.Fatalf("parseInput returned an error: %v", err)
+	}
+	if ants != 3 {
+		t.Errorf("Expected 3 ants, got %d", ants)
+	}
+	startRoom := findStartRoom(rooms)
+	if startRoom == nil {
+		t.Fatalf("No start room found")
+	}
+	if startRoom.Name != "start" || startRoom.X != 0 || startRoom.Y != 1 || !startRoom.IsStart {
+		t.Errorf("Start room not correctly identified: %+v", startRoom)
+	}
+}
+
+func findStartRoom(rooms []models.Room) *models.Room {
+	for _, room := range rooms {
+		if room.IsStart {
+			return &room
+		}
+	}
+	return nil
+}
+
+func TestParse_InputEndRoom(t *testing.T) {
+	// Create a temporary file with test input
+	tmpfile, err := os.CreateTemp("", "test_input_*.txt")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.Remove(tmpfile.Name())
+	// Write test data to the temporary file
+	testInput := `3
+##start
+start 0 1
+middle 1 1
+##end
+end 2 1
+start-middle
+middle-end
+`
+	if _, err := tmpfile.Write([]byte(testInput)); err != nil {
+		t.Fatal(err)
+	}
+	if err := tmpfile.Close(); err != nil {
+		t.Fatal(err)
+	}
+	// Call parseInput with the temporary file
+	ants, rooms, _, err := utils.ParseInput(tmpfile.Name())
+	// Check for errors
+	if err != nil {
+		t.Fatalf("parseInput returned an error: %v", err)
+	}
+	// Check if the number of ants is correct
+	if ants != 3 {
+		t.Errorf("Expected 3 ants, got %d", ants)
+	}
+	// Check if the end room is correctly marked
+	endRoom := rooms[2] // Assuming the end room is the last one added
+	if !endRoom.IsEnd {
+		t.Errorf("End room not correctly marked: %+v", endRoom)
+	}
+	// Check if the end room has the correct name
+	if endRoom.Name != "end" {
+		t.Errorf("Expected end room name to be 'end', got '%s'", endRoom.Name)
+	}
+}
+
+func TestParseInput_IgnoresCommentsAndEmptyLines(t *testing.T) {
+	// Create a temporary file with test input
+	tmpfile, err := os.CreateTemp("", "test_input_*.txt")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.Remove(tmpfile.Name())
+	// Write test input to the temporary file
+	testInput := `5
+# This is a comment
+##start
+room1 0 1
+##end
+room2 2 0
+# Another comment
+room3 1 1
+room1-room2
+room1-room3
+`
+	if _, err := tmpfile.Write([]byte(testInput)); err != nil {
+		t.Fatal(err)
+	}
+	if err := tmpfile.Close(); err != nil {
+		t.Fatal(err)
+	}
+	// Call parseInput with the temporary file
+	ants, rooms, links, err := utils.ParseInput(tmpfile.Name())
+	// Check for errors
+	if err != nil {
+		t.Fatalf("parseInput returned an error: %v", err)
+	}
+	// Check the number of ants
+	if ants != 5 {
+		t.Errorf("Expected 5 ants, got %d", ants)
+	}
+	// Check the number of rooms
+	expectedRooms := 3
+	if len(rooms) != expectedRooms {
+		t.Errorf("Expected %d rooms, got %d", expectedRooms, len(rooms))
+	}
+	// Check the number of links
+	expectedLinks := 2
+	if len(links) != expectedLinks {
+		t.Errorf("Expected %d links, got %d", expectedLinks, len(links))
+	}
+	// Check if start and end rooms are correctly marked
+	for _, room := range rooms {
+		if room.Name == "room1" && !room.IsStart {
+			t.Errorf("Expected room1 to be marked as start")
+		}
+		if room.Name == "room2" && !room.IsEnd {
+			t.Errorf("Expected room2 to be marked as end")
+		}
 	}
 }
