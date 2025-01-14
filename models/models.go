@@ -1,4 +1,4 @@
-package structures
+package models
 
 type Colony struct {
 	NumberofAnts    int

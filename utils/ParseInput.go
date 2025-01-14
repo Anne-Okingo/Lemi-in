@@ -35,7 +35,7 @@ func ValidContent(filename string) ([]string, error) {
 	return validContent, nil
 }
 
-func ParseInput(filename string) (int, []structures.Room, []structures.Link, error) {
+func ParseInput(filename string) (int, []models.Room, []models.Link, error) {
 	contents, err := ValidContent(filename)
 	if err != nil {
 		return 0, nil, nil, fmt.Errorf("ERROR: invalid data format: %v", err)
@@ -51,8 +51,8 @@ func ParseInput(filename string) (int, []structures.Room, []structures.Link, err
 		return 0, nil, nil, fmt.Errorf("ERROR: invalid data format, invalid number of Ants")
 	}
 
-	var rooms []structures.Room
-	var links []structures.Link
+	var rooms []models.Room
+	var links []models.Link
 	var nextIsStart, nextIsEnd bool
 
 	// Parse rooms and links
@@ -76,7 +76,7 @@ func ParseInput(filename string) (int, []structures.Room, []structures.Link, err
 		if strings.Contains(line, "-") {
 			parts := strings.Split(line, "-")
 			if len(parts) == 2 && parts[0] != "" && parts[1] != "" {
-				links = append(links, structures.Link{From: parts[0], To: parts[1]})
+				links = append(links, models.Link{From: parts[0], To: parts[1]})
 			}
 			continue
 		}
@@ -99,7 +99,7 @@ func ParseInput(filename string) (int, []structures.Room, []structures.Link, err
 			continue
 		}
 
-		room := structures.Room{
+		room := models.Room{
 			Name:    parts[0],
 			X:       x,
 			Y:       y,

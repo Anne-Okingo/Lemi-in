@@ -10,19 +10,6 @@ import (
 	"lemin/utils"
 )
 
-type Room struct {
-	name    string
-	x, y    int
-	isStart bool
-	isEnd   bool
-}
-
-type Link struct {
-	from         string
-	to           string
-	NumberofAnts int
-}
-
 func ValidContent(filename string) ([]string, error) {
 	fileContent, err := os.Open(filename)
 	if err != nil {
@@ -48,7 +35,7 @@ func ValidContent(filename string) ([]string, error) {
 	return validContent, nil
 }
 
-func findPaths(startRoom string, endRoom string, rooms []structures.Room, links []structures.Link) [][]string {
+func findPaths(startRoom string, endRoom string, rooms []models.Room, links []models.Link) [][]string {
 	var paths [][]string
 	visited := make(map[string]bool)
 	currentPath := []string{startRoom}
