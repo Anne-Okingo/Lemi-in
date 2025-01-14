@@ -221,3 +221,27 @@ func TestFindPaths_LargeMaze(t *testing.T) {
 		t.Errorf("Expected path length of %d, got %d", numRooms, len(paths[0]))
 	}
 }
+
+func TestFindPaths_IsolatedRooms(t *testing.T) {
+	links := []models.Link{
+		{From: "start", To: "A"},
+		{From: "A", To: "B"},
+		{From: "B", To: "end"},
+		{From: "C", To: "D"}, // Isolated path
+	}
+	paths := utils.FindPaths("start", "end", links)
+
+	expected := [][]string{
+		{"start", "A", "B", "end"},
+	}
+
+	if len(paths) != len(expected) {
+		t.Fatalf("Expected %d paths, but got %d", len(expected), len(paths))
+	}
+
+	for i, path := range paths {
+		if !reflect.DeepEqual(path, expected[i]) {
+			t.Errorf("Path %d: expected %v, but got %v", i, expected[i], path)
+		}
+	}
+}
