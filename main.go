@@ -147,11 +147,6 @@ func main() {
 		}
 	}
 
-	if startRoom == "" || endRoom == "" {
-		fmt.Println("ERROR: invalid data format, missing start or end room")
-		return
-	}
-
 	// Find all possible paths
 	paths := findPaths(startRoom, endRoom, rooms, links)
 	if len(paths) == 0 {
