@@ -35,7 +35,7 @@ func ValidContent(filename string) ([]string, error) {
 	return validContent, nil
 }
 
-func findPaths(startRoom string, endRoom string, rooms []models.Room, links []models.Link) [][]string {
+func findPaths(startRoom string, endRoom string, links []models.Link) [][]string {
 	var paths [][]string
 	visited := make(map[string]bool)
 	currentPath := []string{startRoom}
@@ -124,6 +124,7 @@ func moveAnts(ants int, paths [][]string) [][]string {
 }
 
 func main() {
+	// Check for valid number command-line arguments
 	if len(os.Args) != 2 {
 		fmt.Println("ERROR: invalid data format, please provide a file name")
 		return
@@ -148,7 +149,7 @@ func main() {
 	}
 
 	// Find all possible paths
-	paths := findPaths(startRoom, endRoom, rooms, links)
+	paths := findPaths(startRoom, endRoom, links)
 	if len(paths) == 0 {
 		fmt.Println("ERROR: no valid path found between start and end")
 		return
