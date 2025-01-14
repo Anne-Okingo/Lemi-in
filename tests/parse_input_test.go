@@ -135,6 +135,7 @@ func TestParseInput_IdentifiesStartRoom(t *testing.T) {
 ##start
 start 0 1
 room1 2 3
+##end
 room2 4 5
 start-room1
 start-room2
