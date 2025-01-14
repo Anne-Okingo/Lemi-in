@@ -1,11 +1,11 @@
 package models
 
 type Colony struct {
-	NumberofAnts    int
-	Rooms struct{}
-	Link struct{}
-	Start string
-	End   string
+	NumberofAnts int
+	Rooms        struct{}
+	Link         struct{}
+	Start        string
+	End          string
 }
 
 type Link struct {
@@ -13,11 +13,11 @@ type Link struct {
 	To   string
 }
 
-type Path struct{
+type Path struct {
 	Rooms []string
 }
 
-type Room struct{
+type Room struct {
 	Name    string
 	X       int
 	Y       int
