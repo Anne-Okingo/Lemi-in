@@ -245,3 +245,31 @@ func TestFindPaths_IsolatedRooms(t *testing.T) {
 		}
 	}
 }
+
+func TestFindPaths_MaintainRoomOrder(t *testing.T) {
+	links := []models.Link{
+		{From: "A", To: "B"},
+		{From: "B", To: "C"},
+		{From: "A", To: "D"},
+		{From: "D", To: "C"},
+	}
+	startRoom := "A"
+	endRoom := "C"
+
+	paths := utils.FindPaths(startRoom, endRoom, links)
+
+	expectedPaths := [][]string{
+		{"A", "B", "C"},
+		{"A", "D", "C"},
+	}
+
+	if len(paths) != len(expectedPaths) {
+		t.Errorf("Expected %d paths, but got %d", len(expectedPaths), len(paths))
+	}
+
+	for i, expectedPath := range expectedPaths {
+		if !reflect.DeepEqual(paths[i], expectedPath) {
+			t.Errorf("Path %d: expected %v, but got %v", i, expectedPath, paths[i])
+		}
+	}
+}
