@@ -109,3 +109,19 @@ func TestFindPaths_HandlesCyclicPaths(t *testing.T) {
 		}
 	}
 }
+
+func TestFindPaths_SameStartAndEnd(t *testing.T) {
+	startRoom := "A"
+	endRoom := "A"
+	links := []models.Link{
+		{From: "A", To: "B"},
+		{From: "B", To: "C"},
+		{From: "C", To: "D"},
+	}
+
+	paths := utils.FindPaths(startRoom, endRoom, links)
+
+	if len(paths) != 0 {
+		t.Errorf("Expected empty slice, but got %v", paths)
+	}
+}
