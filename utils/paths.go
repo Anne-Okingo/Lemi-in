@@ -3,6 +3,7 @@ package utils
 import "lemin/models"
 
 func FindPaths(startRoom string, endRoom string, links []models.Link) [][]string {
+	// Initiate utility variables
 	var paths [][]string
 	visited := make(map[string]bool)
 	currentPath := []string{startRoom}
