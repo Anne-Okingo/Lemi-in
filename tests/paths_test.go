@@ -43,3 +43,49 @@ func TestFindPaths(t *testing.T) {
 		t.Errorf("Expected paths %v, but got %v", expectedPaths, paths)
 	}
 }
+
+func TestFindPaths_MultipleRoutes(t *testing.T) {
+	links := []models.Link{
+		{From: "A", To: "B"},
+		{From: "A", To: "C"},
+		{From: "B", To: "D"},
+		{From: "C", To: "D"},
+		{From: "D", To: "E"},
+	}
+
+	paths := utils.FindPaths("A", "E", links)
+
+	expectedPaths := [][]string{
+		{"A", "B", "D", "E"},
+		{"A", "C", "D", "E"},
+	}
+
+	if len(paths) != len(expectedPaths) {
+		t.Errorf("Expected %d paths, but got %d", len(expectedPaths), len(paths))
+	}
+
+	for _, expectedPath := range expectedPaths {
+		found := false
+		for _, path := range paths {
+			if compareSlices(path, expectedPath) {
+				found = true
+				break
+			}
+		}
+		if !found {
+			t.Errorf("Expected path %v not found in result", expectedPath)
+		}
+	}
+}
+
+func compareSlices(a, b []string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i := range a {
+		if a[i] != b[i] {
+			return false
+		}
+	}
+	return true
+}
