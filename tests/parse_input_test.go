@@ -67,3 +67,32 @@ func TestParseInput(t *testing.T) {
 		}
 	}
 }
+
+func TestParseInput_EmptyFile(t *testing.T) {
+	// Create a temporary empty file
+	tmpfile, err := os.CreateTemp("", "empty_test_file")
+	if err != nil {
+		t.Fatalf("Failed to create temporary file: %v", err)
+	}
+	defer os.Remove(tmpfile.Name())
+
+	// Close the file immediately as we want it to be empty
+	if err := tmpfile.Close(); err != nil {
+		t.Fatalf("Failed to close temporary file: %v", err)
+	}
+	// Call parseInput with the empty file
+	ants, rooms, links, err := utils.ParseInput(tmpfile.Name())
+	// Check the results
+	if err == nil {
+		t.Errorf("Expected error for empty file, got: %v", nil)
+	}
+	if ants != 0 {
+		t.Errorf("Expected 0 ants for empty file, got: %d", ants)
+	}
+	if len(rooms) != 0 {
+		t.Errorf("Expected 0 rooms for empty file, got: %d", len(rooms))
+	}
+	if len(links) != 0 {
+		t.Errorf("Expected 0 links for empty file, got: %d", len(links))
+	}
+}
