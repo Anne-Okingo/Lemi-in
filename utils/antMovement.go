@@ -2,120 +2,189 @@ package utils
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 )
 
-type AntPath struct {
-	pathIndex int    // Index of the path being used
-	ant       int    // Ant number
-	position  int    // Current position in path
-	path      []string // The actual path
+type Ant struct {
+	ID       int
+	Path     []string
+	Position int
+}
+
+type PathInfo struct {
+	Path     []string
+	Length   int
+	AntsUsing int
+}
+
+// Improved distribution algorithm focusing on parallel path usage
+func distributeAnts(paths [][]string, totalAnts int) []PathInfo {
+	if len(paths) == 0 || totalAnts <= 0 {
+		return nil
+	}
+
+	// Initialize path info
+	pathInfos := make([]PathInfo, len(paths))
+	for i, path := range paths {
+		pathInfos[i] = PathInfo{
+			Path:     path,
+			Length:   len(path) - 1,
+			AntsUsing: 0,
+		}
+	}
+
+	// Sort paths by length
+	sort.Slice(pathInfos, func(i, j int) bool {
+		return pathInfos[i].Length < pathInfos[j].Length
+	})
+
+	// Calculate initial distribution
+	remainingAnts := totalAnts
+	for remainingAnts > 0 {
+		// Find the path that would finish earliest with one more ant
+		bestIdx := 0
+		bestTime := pathInfos[0].Length + pathInfos[0].AntsUsing + 1
+		
+		for i := range pathInfos {
+			finishTime := pathInfos[i].Length + pathInfos[i].AntsUsing + 1
+			if finishTime <= bestTime {
+				bestTime = finishTime
+				bestIdx = i
+			}
+		}
+		
+		pathInfos[bestIdx].AntsUsing++
+		remainingAnts--
+	}
+
+	// Filter out unused paths
+	result := make([]PathInfo, 0)
+	for _, p := range pathInfos {
+		if p.AntsUsing > 0 {
+			result = append(result, p)
+		}
+	}
+	return result
+}
+
+func simulateMovements(ants []*Ant) {
+	antsByPath := make(map[string][]*Ant)
+	// Group ants by their assigned paths
+	for _, ant := range ants {
+		pathKey := strings.Join(ant.Path, ",")
+		antsByPath[pathKey] = append(antsByPath[pathKey], ant)
+	}
+
+	activeAnts := make([]*Ant, 0)
+	antIndex := 0
+	
+	for {
+		movements := make([]string, 0)
+		occupiedRooms := make(map[string]bool)
+		
+		// Process existing active ants
+		newActiveAnts := make([]*Ant, 0)
+		for _, ant := range activeAnts {
+			if ant.Position >= len(ant.Path)-1 {
+				continue
+			}
+			
+			nextRoom := ant.Path[ant.Position+1]
+			if !occupiedRooms[nextRoom] || nextRoom == ant.Path[len(ant.Path)-1] {
+				ant.Position++
+				movements = append(movements, fmt.Sprintf("L%d-%s", ant.ID, nextRoom))
+				if nextRoom != ant.Path[len(ant.Path)-1] {
+					occupiedRooms[nextRoom] = true
+				}
+				if ant.Position < len(ant.Path)-1 {
+					newActiveAnts = append(newActiveAnts, ant)
+				}
+			} else {
+				newActiveAnts = append(newActiveAnts, ant)
+			}
+		}
+		
+		// Try to add new ants from each path
+		for pathKey, pathAnts := range antsByPath {
+			if antIndex >= len(pathAnts) {
+				continue
+			}
+			
+			path := strings.Split(pathKey, ",")
+			nextRoom := path[1] // First room after start
+			
+			if !occupiedRooms[nextRoom] {
+				ant := pathAnts[antIndex]
+				ant.Position = 1
+				movements = append(movements, fmt.Sprintf("L%d-%s", ant.ID, nextRoom))
+				occupiedRooms[nextRoom] = true
+				newActiveAnts = append(newActiveAnts, ant)
+			}
+		}
+		
+		if len(movements) == 0 {
+			break
+		}
+		
+		// Sort movements for consistent output
+		sort.Slice(movements, func(i, j int) bool {
+			return movements[i] < movements[j]
+		})
+		
+		fmt.Println(strings.Join(movements, " "))
+		activeAnts = newActiveAnts
+		antIndex++
+	}
 }
 
 func SimulateAntMovement(paths [][]string, antCount int) {
-	// Initialize path assignments
-	pathAssignments := make(map[int][]int) // map[pathIndex][]antNumbers
+	validPaths := filterValidPaths(paths)
+	if len(validPaths) == 0 {
+		fmt.Println("ERROR: No valid paths available")
+		return
+	}
+
+	pathInfos := distributeAnts(validPaths, antCount)
 	
-	// For each ant, find the optimal path
-	for ant := 1; ant <= antCount; ant++ {
-		bestPathIndex := findBestPath(paths, pathAssignments)
-		if bestPathIndex == -1 {
-			return // Error case
-		}
-		
-		// Assign ant to the best path
-		pathAssignments[bestPathIndex] = append(pathAssignments[bestPathIndex], ant)
-	}
-
-	// Simulate movements
-	moveAnts(paths, pathAssignments)
-}
-
-func findBestPath(paths [][]string, pathAssignments map[int][]int) int {
-	bestPathIndex := 0
-	lowestCost := -1
-
-	for i, path := range paths {
-		// Calculate cost: rooms in path + ants already assigned
-		currentAnts := len(pathAssignments[i])
-		cost := len(path) - 1 + currentAnts // -1 because we don't count start room
-		
-		// Initialize lowestCost or update if this path is better
-		if lowestCost == -1 || cost < lowestCost {
-			lowestCost = cost
-			bestPathIndex = i
-		}
-	}
-
-	return bestPathIndex
-}
-
-func moveAnts(paths [][]string, pathAssignments map[int][]int) {
-	// Create initial ant positions
-	var activeAnts []AntPath
-	for pathIndex, ants := range pathAssignments {
-		for _, ant := range ants {
-			activeAnts = append(activeAnts, AntPath{
-				pathIndex: pathIndex,
-				ant:       ant,
-				position:  0,
-				path:      paths[pathIndex],
+	// Create and assign ants
+	var ants []*Ant
+	currentAntID := 1
+	
+	// Create ants based on distribution
+	for _, pathInfo := range pathInfos {
+		for i := 0; i < pathInfo.AntsUsing; i++ {
+			ants = append(ants, &Ant{
+				ID:       currentAntID,
+				Path:     pathInfo.Path,
+				Position: 0,
 			})
+			currentAntID++
 		}
 	}
 
-	// Continue until all ants reach the end
-	for len(activeAnts) > 0 {
-		var moves []string
-		var remainingAnts []AntPath
+	simulateMovements(ants)
+}
 
-		// Track room and link occupancy
-		roomOccupancy := make(map[string]bool)
-		linkUsage := make(map[string]bool)
-
-		// Process each active ant
-		for _, ant := range activeAnts {
-			// Check if next room is available
-			nextPos := ant.position + 1
-			if nextPos >= len(ant.path) {
-				continue // Ant has reached the end
-			}
-
-			currentRoom := ant.path[ant.position]
-			nextRoom := ant.path[nextPos]
-			link := fmt.Sprintf("%s-%s", currentRoom, nextRoom)
-
-			// Skip if room is occupied or link is in use (except for end room)
-			if roomOccupancy[nextRoom] && nextRoom != ant.path[len(ant.path)-1] {
-				remainingAnts = append(remainingAnts, ant)
-				continue
-			}
-			if linkUsage[link] {
-				remainingAnts = append(remainingAnts, ant)
-				continue
-			}
-
-			// Move ant
-			moves = append(moves, fmt.Sprintf("L%d-%s", ant.ant, nextRoom))
-			roomOccupancy[nextRoom] = true
-			linkUsage[link] = true
-
-			// If ant hasn't reached end, keep it active
-			if nextPos < len(ant.path)-1 {
-				remainingAnts = append(remainingAnts, AntPath{
-					pathIndex: ant.pathIndex,
-					ant:       ant.ant,
-					position:  nextPos,
-					path:      ant.path,
-				})
-			}
+func filterValidPaths(paths [][]string) [][]string {
+	var validPaths [][]string
+	for _, path := range paths {
+		if isValidPath(path) {
+			validPaths = append(validPaths, path)
 		}
-
-		// Output moves for this turn
-		if len(moves) > 0 {
-			fmt.Println(strings.Join(moves, " "))
-		}
-
-		activeAnts = remainingAnts
 	}
+	return validPaths
+}
+
+func isValidPath(path []string) bool {
+	seen := make(map[string]bool)
+	
+	for i := 1; i < len(path)-1; i++ {
+		room := path[i]
+		if seen[room] {
+			return false
+		}
+		seen[room] = true
+	}
+	return true
 }
