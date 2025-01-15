@@ -8,6 +8,7 @@ import (
 )
 
 func main() {
+	// Check for valid number command-line arguments
 	if len(os.Args) != 2 {
 		fmt.Println("Usage: go run . <filename>")
 		return

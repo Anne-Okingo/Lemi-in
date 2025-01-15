@@ -16,3 +16,4 @@ type ARoom struct {
 	Links       []string
 	Visited     bool
 }
+
