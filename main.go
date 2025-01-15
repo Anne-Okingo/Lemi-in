@@ -4,97 +4,147 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"strconv"
 	"strings"
+
+	"lemin/utils"
 )
 
-type Room struct {
-	name    string
-	x, y    int
-	isStart bool
-	isEnd   bool
-}
-
-type Link struct {
-	from     string
-	to       string
-	capacity int
-}
-
-func parseInput(filename string) (int, []Room, []Link, error) {
-	file, err := os.Open(filename)
+func ValidContent(filename string) ([]string, error) {
+	fileContent, err := os.Open(filename)
 	if err != nil {
-		return 0, nil, nil, err
+		return nil, fmt.Errorf("error reading file: %v", err)
 	}
-	defer file.Close()
+	defer fileContent.Close()
 
-	scanner := bufio.NewScanner(file)
-	var ants int
-	var rooms []Room
-	var links []Link
-	var nextIsStart, nextIsEnd bool
+	validContent := []string{}
+	scanner := bufio.NewScanner(fileContent)
 
 	for scanner.Scan() {
-		line := scanner.Text()
-		
+		line := strings.TrimSpace(scanner.Text())
 		if line == "" {
 			continue
 		}
-		if line == "##start" {
-			nextIsStart = true
-			continue
-		}
-		if line == "##end" {
-			nextIsEnd = true
-			continue
-		}
-		if strings.HasPrefix(line, "#") {
-			continue
-		}
+		validContent = append(validContent, line)
+	}
 
-		if ants == 0 {
-			ants, err = strconv.Atoi(line)
-			if err != nil || ants <= 0 {
-				return 0, nil, nil, fmt.Errorf("invalid number of ants")
-			}
-			continue
-		}
+	if err := scanner.Err(); err != nil {
+		return nil, fmt.Errorf("error scanning file: %v", err)
+	}
 
-		if strings.Contains(line, "-") {
-			parts := strings.Split(line, "-")
-			links = append(links, Link{from: parts[0], to: parts[1], capacity: 1})
-		} else {
-			parts := strings.Fields(line)
-			if len(parts) != 3 {
-				continue
+	return validContent, nil
+}
+
+func moveAnts(ants int, paths [][]string) [][]string {
+	if len(paths) == 0 {
+		return nil
+	}
+
+	// Sort paths by length
+	for i := 0; i < len(paths)-1; i++ {
+		for j := i + 1; j < len(paths); j++ {
+			if len(paths[i]) > len(paths[j]) {
+				paths[i], paths[j] = paths[j], paths[i]
 			}
-			x, _ := strconv.Atoi(parts[1])
-			y, _ := strconv.Atoi(parts[2])
-			rooms = append(rooms, Room{
-				name:    parts[0],
-				x:       x,
-				y:       y,
-				isStart: nextIsStart,
-				isEnd:   nextIsEnd,
-			})
-			nextIsStart = false
-			nextIsEnd = false
 		}
 	}
 
-	return ants, rooms, links, nil
+	// Initialize ants
+	type ant struct {
+		id       int
+		pathIdx  int
+		position int
+	}
+
+	antList := make([]ant, ants)
+	for i := range antList {
+		antList[i] = ant{
+			id:       i + 1,
+			pathIdx:  0,
+			position: -1,
+		}
+	}
+
+	var moves [][]string
+	for {
+		finished := true
+		var currentMoves []string
+
+		for i := range antList {
+			if antList[i].position < len(paths[0])-1 {
+				finished = false
+				antList[i].position++
+				move := fmt.Sprintf("L%d-%s", antList[i].id, paths[0][antList[i].position])
+				currentMoves = append(currentMoves, move)
+			}
+		}
+
+		if finished {
+			break
+		}
+		moves = append(moves, currentMoves)
+	}
+
+	return moves
 }
 
 func main() {
+	// Check for valid number command-line arguments
 	if len(os.Args) != 2 {
-		fmt.Println("Usage: go run . <input_file>")
+		fmt.Println("ERROR: invalid data format, please provide a file name")
 		return
 	}
 
-	// Parse input
-	ants, rooms, links, err := parseInput(os.Args[1])
-	fmt.Println(ants)
-	fmt.Println(rooms)
-	fmt.Println(links)
-	fmt.Println(err)
+	// Parse input file
+	ants, rooms, links, err := utils.ParseInput(os.Args[1])
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	// Find start and end rooms
+	var startRoom, endRoom string
+	for _, room := range rooms {
+		if room.IsStart {
+			startRoom = room.Name
+		}
+		if room.IsEnd {
+			endRoom = room.Name
+		}
+	}
+
+	// Find all possible paths
+	paths := utils.FindPaths(startRoom, endRoom, links)
+	if len(paths) == 0 {
+		fmt.Println("ERROR: no valid path found between start and end")
+		return
+	}
+
+	// Print the input data
+	content, err := utils.ValidContent(os.Args[1])
+	if err != nil {
+		fmt.Println("ERROR: invalid data format")
+		return
+	}
+
+	// Print number of ants and room configuration
+	fmt.Println(content[0])
+	for _, line := range content[1:] {
+		if !strings.Contains(line, "-") {
+			fmt.Println(line)
+		}
+	}
+
+	// Print links
+	for _, line := range content[1:] {
+		if strings.Contains(line, "-") {
+			fmt.Println(line)
+		}
+	}
+	fmt.Println()
+
+	// Move ants and print moves
+	moves := moveAnts(ants, paths)
+	for _, move := range moves {
+		fmt.Println(strings.Join(move, " "))
+	}
 }
