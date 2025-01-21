@@ -3,10 +3,10 @@ package utils
 import (
 	"bufio"
 	"fmt"
+	"lemin/models"
 	"os"
 	"strconv"
 	"strings"
-	"lemin/models"
 )
 
 func ParseInput(filename string) (*models.Graph, error) {
@@ -19,7 +19,7 @@ func ParseInput(filename string) (*models.Graph, error) {
 	graph := &models.Graph{
 		Rooms: make(map[string]*models.ARoom),
 	}
-	
+
 	scanner := bufio.NewScanner(file)
 	isStartRoom := false
 	isEndRoom := false
@@ -76,7 +76,7 @@ func ParseInput(filename string) (*models.Graph, error) {
 			if strings.Contains(parts[0], " ") {
 				return nil, fmt.Errorf("invalid data format, room name cannot contain spaces")
 			}
-			
+
 			// Check for duplicate rooms
 			if _, exists := graph.Rooms[parts[0]]; exists {
 				return nil, fmt.Errorf("invalid data format, duplicate room: %s", parts[0])
@@ -104,7 +104,7 @@ func ParseInput(filename string) (*models.Graph, error) {
 				graph.EndRoom = room.Name
 				isEndRoom = false
 			}
-			
+
 			graph.Rooms[room.Name] = room
 			continue
 		}
@@ -117,7 +117,7 @@ func ParseInput(filename string) (*models.Graph, error) {
 			}
 
 			from, to := parts[0], parts[1]
-			
+
 			// Validate rooms exist
 			if _, ok := graph.Rooms[from]; !ok {
 				return nil, fmt.Errorf("invalid data format, link references unknown room: %s", from)
