@@ -2,6 +2,7 @@ package test
 
 import (
 	"os"
+	"reflect"
 	"strings"
 	"testing"
 
@@ -111,5 +112,80 @@ B-C`
 	expectedError := "invalid data format, multiple start rooms"
 	if err == nil || err.Error() != expectedError {
 		t.Errorf("Expected error '%s', but got: %v", expectedError, err)
+	}
+}
+
+func TestParseInput_ValidFile(t *testing.T) {
+	// Create a temporary file with valid input
+	content := `10
+##start
+start 0 0
+room1 1 1
+room2 2 2
+##end
+end 3 3
+start-room1
+room1-room2
+room2-end`
+
+	tmpfile, err := os.CreateTemp("", "test_input_*.txt")
+	if err != nil {
+		t.Fatalf("Failed to create temporary file: %v", err)
+	}
+	defer os.Remove(tmpfile.Name())
+
+	if _, err := tmpfile.Write([]byte(content)); err != nil {
+		t.Fatalf("Failed to write to temporary file: %v", err)
+	}
+	if err := tmpfile.Close(); err != nil {
+		t.Fatalf("Failed to close temporary file: %v", err)
+	}
+
+	// Parse the input file
+	graph, err := utils.ParseInput(tmpfile.Name())
+	if err != nil {
+		t.Fatalf("ParseInput failed: %v", err)
+	}
+
+	// Check the parsed data
+	if graph.AntCount != 10 {
+		t.Errorf("Expected 10 ants, got %d", graph.AntCount)
+	}
+
+	if len(graph.Rooms) != 4 {
+		t.Errorf("Expected 4 rooms, got %d", len(graph.Rooms))
+	}
+
+	if graph.StartRoom != "start" {
+		t.Errorf("Expected start room to be 'start', got '%s'", graph.StartRoom)
+	}
+
+	if graph.EndRoom != "end" {
+		t.Errorf("Expected end room to be 'end', got '%s'", graph.EndRoom)
+	}
+
+	expectedRooms := []struct {
+		name  string
+		x, y  int
+		links []string
+	}{
+		{"start", 0, 0, []string{"room1"}},
+		{"room1", 1, 1, []string{"start", "room2"}},
+		{"room2", 2, 2, []string{"room1", "end"}},
+		{"end", 3, 3, []string{"room2"}},
+	}
+
+	for _, er := range expectedRooms {
+		room, ok := graph.Rooms[er.name]
+		if !ok {
+			t.Errorf("Expected room '%s' not found", er.name)
+			continue
+		}
+		if room.XCoordinate != er.x || room.YCoordinate != er.y {
+			t.Errorf("Room '%s' coordinates mismatch. Expected (%d, %d), got (%d, %d)", er.name, er.x, er.y, room.XCoordinate, room.YCoordinate)
+		}
+		if !reflect.DeepEqual(room.Links, er.links) {
+			t.Errorf("Room '%s' links mismatch. Expected %v, got %v", er.name, er.links, room.Links)
+		}
 	}
 }
