@@ -192,3 +192,17 @@ func TestGetAllPaths_WithMultipleLinks(t *testing.T) {
 		}
 	}
 }
+
+func TestGetAllPaths_StartRoomDoesNotExist(t *testing.T) {
+	rooms := map[string]*models.ARoom{
+		"A": {Name: "A", Links: []string{"B"}},
+		"B": {Name: "B", Links: []string{"A", "C"}},
+		"C": {Name: "C", Links: []string{"B"}},
+	}
+
+	paths := utils.GetAllPaths(rooms, "NonExistentStart", "C")
+
+	if len(paths) != 0 {
+		t.Errorf("Expected empty slice, but got %v paths", len(paths))
+	}
+}

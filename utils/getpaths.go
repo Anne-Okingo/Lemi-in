@@ -10,6 +10,10 @@ func GetAllPaths(rooms map[string]*models.ARoom, start, end string) [][]string {
 	queue := list.New()
 	queue.PushBack([]string{start})
 
+	if _, exists := rooms[start]; !exists {
+		return paths
+	}
+
 	for queue.Len() > 0 {
 		path := queue.Remove(queue.Front()).([]string)
 		lastRoom := path[len(path)-1]
