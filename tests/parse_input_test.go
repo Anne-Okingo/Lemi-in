@@ -79,3 +79,37 @@ func TestParseInput_NoAnts(t *testing.T) {
 		t.Errorf("Expected error message '%s', but got '%s'", expectedError, err.Error())
 	}
 }
+
+func TestParseInput_MultipleStartRooms(t *testing.T) {
+	// Create a temporary file with multiple start rooms
+	content := `2
+##start
+A 1 1
+##start
+B 2 2
+C 3 3
+A-B
+B-C`
+
+	tmpfile, err := os.CreateTemp("", "test_input_*.txt")
+	if err != nil {
+		t.Fatalf("Failed to create temporary file: %v", err)
+	}
+	defer os.Remove(tmpfile.Name())
+
+	if _, err := tmpfile.Write([]byte(content)); err != nil {
+		t.Fatalf("Failed to write to temporary file: %v", err)
+	}
+	if err := tmpfile.Close(); err != nil {
+		t.Fatalf("Failed to close temporary file: %v", err)
+	}
+
+	// Test ParseInput function
+	_, err = utils.ParseInput(tmpfile.Name())
+
+	// Check if the error message is correct
+	expectedError := "invalid data format, multiple start rooms"
+	if err == nil || err.Error() != expectedError {
+		t.Errorf("Expected error '%s', but got: %v", expectedError, err)
+	}
+}
