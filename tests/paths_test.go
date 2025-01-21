@@ -124,3 +124,19 @@ func TestGetAllPaths_WithCycles(t *testing.T) {
 		}
 	}
 }
+
+func TestGetAllPaths_SameStartEnd(t *testing.T) {
+	rooms := map[string]*models.ARoom{
+		"A": {Name: "A", Links: []string{}},
+	}
+
+	paths := utils.GetAllPaths(rooms, "A", "A")
+
+	if len(paths) != 1 {
+		t.Errorf("Expected 1 path, got %d", len(paths))
+	}
+
+	if len(paths[0]) != 1 || paths[0][0] != "A" {
+		t.Errorf("Expected path [A], got %v", paths[0])
+	}
+}
