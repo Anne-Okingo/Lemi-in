@@ -246,3 +246,38 @@ func TestParseInput_RoomNameWithSpaces(t *testing.T) {
 		t.Errorf("Expected error '%s', but got '%s'", expectedError, err.Error())
 	}
 }
+
+func TestParseInput_DuplicateRoomNames(t *testing.T) {
+	tempFile, err := os.CreateTemp("", "test_input_*.txt")
+	if err != nil {
+		t.Fatalf("Failed to create temporary file: %v", err)
+	}
+	defer os.Remove(tempFile.Name())
+
+	input := `3
+room1 0 0
+room2 1 1
+room1 2 2
+##start
+start 3 3
+##end
+end 4 4
+room1-room2
+start-room1
+room2-end`
+
+	if _, err := tempFile.WriteString(input); err != nil {
+		t.Fatalf("Failed to write to temporary file: %v", err)
+	}
+	tempFile.Close()
+
+	_, err = utils.ParseInput(tempFile.Name())
+	if err == nil {
+		t.Error("Expected an error for duplicate room names, but got nil")
+	}
+
+	expectedError := "invalid data format, duplicate room: room1"
+	if err.Error() != expectedError {
+		t.Errorf("Expected error message '%s', but got '%s'", expectedError, err.Error())
+	}
+}
