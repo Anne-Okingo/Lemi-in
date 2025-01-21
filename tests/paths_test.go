@@ -154,3 +154,41 @@ func TestGetAllPaths_WithNoOutgoingLinks(t *testing.T) {
 		t.Errorf("Expected 0 paths, but got %d", len(paths))
 	}
 }
+
+func TestGetAllPaths_WithMultipleLinks(t *testing.T) {
+	rooms := map[string]*models.ARoom{
+		"start": {Links: []string{"A", "B"}},
+		"A":     {Links: []string{"C", "D"}},
+		"B":     {Links: []string{"D", "E"}},
+		"C":     {Links: []string{"end"}},
+		"D":     {Links: []string{"end"}},
+		"E":     {Links: []string{"end"}},
+		"end":   {Links: []string{}},
+	}
+
+	paths := utils.GetAllPaths(rooms, "start", "end")
+
+	expectedPaths := [][]string{
+		{"start", "A", "C", "end"},
+		{"start", "A", "D", "end"},
+		{"start", "B", "D", "end"},
+		{"start", "B", "E", "end"},
+	}
+
+	if len(paths) != len(expectedPaths) {
+		t.Errorf("Expected %d paths, but got %d", len(expectedPaths), len(paths))
+	}
+
+	for _, expectedPath := range expectedPaths {
+		found := false
+		for _, actualPath := range paths {
+			if equalPaths(expectedPath, actualPath) {
+				found = true
+				break
+			}
+		}
+		if !found {
+			t.Errorf("Expected path %v not found in result", expectedPath)
+		}
+	}
+}
