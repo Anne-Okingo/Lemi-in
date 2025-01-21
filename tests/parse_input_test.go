@@ -189,3 +189,36 @@ room2-end`
 		}
 	}
 }
+
+func TestParseInput_RoomNameStartingWithL(t *testing.T) {
+	// Create a temporary file with invalid input
+	tmpfile, err := os.CreateTemp("", "test_input_*.txt")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.Remove(tmpfile.Name())
+
+	// Write test data to the temporary file
+	testData := `3
+##start
+Lroom 1 1
+##end
+room2 2 2
+Lroom-room2
+`
+	if _, err := tmpfile.Write([]byte(testData)); err != nil {
+		t.Fatal(err)
+	}
+	if err := tmpfile.Close(); err != nil {
+		t.Fatal(err)
+	}
+
+	// Call the function with the temporary file
+	_, err = utils.ParseInput(tmpfile.Name())
+
+	// Check if the error message is as expected
+	expectedError := "invalid data format, room name cannot start with 'L' or '#'"
+	if err == nil || err.Error() != expectedError {
+		t.Errorf("Expected error '%s', but got: %v", expectedError, err)
+	}
+}
