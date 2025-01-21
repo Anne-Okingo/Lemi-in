@@ -90,3 +90,37 @@ func equalPaths(path1, path2 []string) bool {
 	}
 	return true
 }
+
+func TestGetAllPaths_WithCycles(t *testing.T) {
+	rooms := map[string]*models.ARoom{
+		"A": {Name: "A", Links: []string{"B", "C"}},
+		"B": {Name: "B", Links: []string{"A", "D"}},
+		"C": {Name: "C", Links: []string{"A", "D"}},
+		"D": {Name: "D", Links: []string{"B", "C", "E"}},
+		"E": {Name: "E", Links: []string{"D"}},
+	}
+
+	paths := utils.GetAllPaths(rooms, "A", "E")
+
+	expectedPaths := [][]string{
+		{"A", "B", "D", "E"},
+		{"A", "C", "D", "E"},
+	}
+
+	if len(paths) != len(expectedPaths) {
+		t.Errorf("Expected %d paths, but got %d", len(expectedPaths), len(paths))
+	}
+
+	for _, expectedPath := range expectedPaths {
+		found := false
+		for _, actualPath := range paths {
+			if reflect.DeepEqual(expectedPath, actualPath) {
+				found = true
+				break
+			}
+		}
+		if !found {
+			t.Errorf("Expected path %v not found in result", expectedPath)
+		}
+	}
+}
