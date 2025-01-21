@@ -206,3 +206,17 @@ func TestGetAllPaths_StartRoomDoesNotExist(t *testing.T) {
 		t.Errorf("Expected empty slice, but got %v paths", len(paths))
 	}
 }
+
+func TestGetAllPaths_EndRoomDoesNotExist(t *testing.T) {
+	rooms := map[string]*models.ARoom{
+		"start": {Name: "start", Links: []string{"A", "B"}},
+		"A":     {Name: "A", Links: []string{"start", "B"}},
+		"B":     {Name: "B", Links: []string{"start", "A"}},
+	}
+
+	paths := utils.GetAllPaths(rooms, "start", "end")
+
+	if len(paths) != 0 {
+		t.Errorf("Expected empty slice, got %v", paths)
+	}
+}
