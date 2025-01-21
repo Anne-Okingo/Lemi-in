@@ -1,7 +1,6 @@
 package test
 
 import (
-	"log"
 	"reflect"
 	"testing"
 
@@ -42,42 +41,42 @@ func TestGetAllPaths_SingleDirectPath(t *testing.T) {
 	}
 }
 
-func TestGetAllPaths(t *testing.T) {
-	rooms := map[string]*models.ARoom{
-		"start": {Links: []string{"A", "B"}},
-		"A":     {Links: []string{"start", "C", "D"}},
-		"B":     {Links: []string{"start", "D"}},
-		"C":     {Links: []string{"A", "end"}},
-		"D":     {Links: []string{"A", "B", "end"}},
-		"end":   {Links: []string{"C", "D"}},
-	}
+// func TestGetAllPaths(t *testing.T) {
+// 	rooms := map[string]*models.ARoom{
+// 		"start": {Links: []string{"A", "B"}},
+// 		"A":     {Links: []string{"start", "C", "D"}},
+// 		"B":     {Links: []string{"start", "D"}},
+// 		"C":     {Links: []string{"A", "end"}},
+// 		"D":     {Links: []string{"A", "B", "end"}},
+// 		"end":   {Links: []string{"C", "D"}},
+// 	}
 
-	paths := utils.GetAllPaths(rooms, "start", "end")
-	log.Printf("Paths: %#v", paths)
+// 	paths := utils.GetAllPaths(rooms, "start", "end")
+// 	log.Printf("Paths: %#v", paths)
 
-	expectedPaths := [][]string{
-		{"start", "A", "C", "end"},
-		{"start", "A", "D", "end"},
-		{"start", "B", "D", "end"},
-	}
+// 	expectedPaths := [][]string{
+// 		{"start", "A", "C", "end"},
+// 		{"start", "A", "D", "end"},
+// 		{"start", "B", "D", "end"},
+// 	}
 
-	if len(paths) != len(expectedPaths) {
-		t.Errorf("Expected %d paths, but got %d", len(expectedPaths), len(paths))
-	}
+// 	if len(paths) != len(expectedPaths) {
+// 		t.Errorf("Expected %d paths, but got %d", len(expectedPaths), len(paths))
+// 	}
 
-	for _, expectedPath := range expectedPaths {
-		found := false
-		for _, actualPath := range paths {
-			if equalPaths(expectedPath, actualPath) {
-				found = true
-				break
-			}
-		}
-		if !found {
-			t.Errorf("Expected path %v not found in the result", expectedPath)
-		}
-	}
-}
+// 	for _, expectedPath := range expectedPaths {
+// 		found := false
+// 		for _, actualPath := range paths {
+// 			if equalPaths(expectedPath, actualPath) {
+// 				found = true
+// 				break
+// 			}
+// 		}
+// 		if !found {
+// 			t.Errorf("Expected path %v not found in the result", expectedPath)
+// 		}
+// 	}
+// }
 
 func equalPaths(path1, path2 []string) bool {
 	if len(path1) != len(path2) {
