@@ -281,3 +281,26 @@ room2-end`
 		t.Errorf("Expected error message '%s', but got '%s'", expectedError, err.Error())
 	}
 }
+
+func TestParseInput_InvalidRoomCoordinates(t *testing.T) {
+	tempFile, err := os.CreateTemp("", "test_input_*.txt")
+	if err != nil {
+		t.Fatalf("Failed to create temporary file: %v", err)
+	}
+	defer os.Remove(tempFile.Name())
+
+	_, err = tempFile.WriteString("3\n##start\nstart 0 0\nmiddle abc 2\n##end\nend 2 2\nstart-middle\nmiddle-end\n")
+	if err != nil {
+		t.Fatalf("Failed to write to temporary file: %v", err)
+	}
+	tempFile.Close()
+
+	_, err = utils.ParseInput(tempFile.Name())
+	if err == nil {
+		t.Error("Expected error for invalid room coordinates, but got nil")
+	}
+	expectedError := "invalid data format, invalid coordinates for room: middle"
+	if err.Error() != expectedError {
+		t.Errorf("Expected error message '%s', but got '%s'", expectedError, err.Error())
+	}
+}
