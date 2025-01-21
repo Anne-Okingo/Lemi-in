@@ -140,3 +140,17 @@ func TestGetAllPaths_SameStartEnd(t *testing.T) {
 		t.Errorf("Expected path [A], got %v", paths[0])
 	}
 }
+
+func TestGetAllPaths_WithNoOutgoingLinks(t *testing.T) {
+	rooms := map[string]*models.ARoom{
+		"start":  {Links: []string{"middle"}},
+		"middle": {Links: []string{}},
+		"end":    {Links: []string{}},
+	}
+
+	paths := utils.GetAllPaths(rooms, "start", "end")
+
+	if len(paths) != 0 {
+		t.Errorf("Expected 0 paths, but got %d", len(paths))
+	}
+}
