@@ -2,6 +2,7 @@ package utils
 
 import (
 	"container/list"
+	"fmt"
 	"lemin/models"
 )
 
@@ -23,8 +24,14 @@ func GetAllPaths(rooms map[string]*models.ARoom, start, end string) [][]string {
 			continue
 		}
 
+		visited := make(map[string]bool)
+
+		for _, room := range path{
+			visited[room] = true 
+		}
+
 		for _, nextRoom := range rooms[lastRoom].Links {
-			if !Contains(path, nextRoom) {
+			if !visited[nextRoom] {
 				newPath := make([]string, len(path))
 				copy(newPath, path)
 				newPath = append(newPath, nextRoom)
@@ -32,6 +39,7 @@ func GetAllPaths(rooms map[string]*models.ARoom, start, end string) [][]string {
 			}
 		}
 	}
+	fmt.Println(paths)
 	return paths
 }
 
