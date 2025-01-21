@@ -20,7 +20,7 @@ func GetAllPaths(rooms map[string]*models.ARoom, start, end string) [][]string {
 		}
 
 		for _, nextRoom := range rooms[lastRoom].Links {
-			if !contains(path, nextRoom) {
+			if !Contains(path, nextRoom) {
 				newPath := make([]string, len(path))
 				copy(newPath, path)
 				newPath = append(newPath, nextRoom)
@@ -31,7 +31,7 @@ func GetAllPaths(rooms map[string]*models.ARoom, start, end string) [][]string {
 	return paths
 }
 
-func contains(path []string, room string) bool {
+func Contains(path []string, room string) bool {
 	for _, r := range path {
 		if r == room {
 			return true
