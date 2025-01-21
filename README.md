@@ -189,7 +189,7 @@ The program first Validates input for:
 Then Constructs and defines a graph model(ant colony)that contains the number of ants,start and end room, rooms, paths and ant names.
 
 Find path : the program finds all possible paths between two rooms (start and end) in a graph (colony)
-Data structure : Queue- Implements Breadth-First Search (BFS)BFS traversal.
+Data structure : Queue- Implements Breadth-First Search BFS traversal.
 Path: A slice of strings representing the current traversal/path.
 Finds all paths from start to end in a graph, avoiding cycles and ensuring all valid paths are explored
 
