@@ -1,12 +1,13 @@
 package utils
 
 import (
-	"os"
-	"fmt"
-	"strings"
 	"bufio"
+	"fmt"
+	"os"
+	"strings"
 )
-func PrintFileContents(string){
+
+func PrintFileContents(string) {
 	// Print the input data
 	content, err := ValidContent(os.Args[1])
 	if err != nil {
