@@ -336,3 +336,37 @@ room2-nonexistent
 		t.Errorf("Expected error message to contain 'link references unknown room: nonexistent', but got: %v", err)
 	}
 }
+
+func TestParseInput_DuplicateTunnels(t *testing.T) {
+	tempFile, err := os.CreateTemp("", "test_input_*.txt")
+	if err != nil {
+		t.Fatalf("Failed to create temporary file: %v", err)
+	}
+	defer os.Remove(tempFile.Name())
+
+	input := `3
+##start
+start 0 0
+##end
+end 1 1
+room1 2 2
+room2 3 3
+start-room1
+room1-end
+start-room1
+`
+
+	if _, err := tempFile.WriteString(input); err != nil {
+		t.Fatalf("Failed to write to temporary file: %v", err)
+	}
+	tempFile.Close()
+
+	_, err = utils.ParseInput(tempFile.Name())
+	if err == nil {
+		t.Error("Expected an error for duplicate tunnels, but got nil")
+	}
+	expectedError := "invalid data format, duplicate tunnel between rooms start and room1"
+	if err.Error() != expectedError {
+		t.Errorf("Expected error message '%s', but got '%s'", expectedError, err.Error())
+	}
+}
