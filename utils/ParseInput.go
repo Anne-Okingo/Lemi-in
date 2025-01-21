@@ -3,10 +3,11 @@ package utils
 import (
 	"bufio"
 	"fmt"
-	"lemin/models"
 	"os"
 	"strconv"
 	"strings"
+
+	"lemin/models"
 )
 
 func ParseInput(filename string) (*models.Graph, error) {
@@ -73,9 +74,6 @@ func ParseInput(filename string) (*models.Graph, error) {
 			if strings.HasPrefix(parts[0], "L") || strings.HasPrefix(parts[0], "#") {
 				return nil, fmt.Errorf("invalid data format, room name cannot start with 'L' or '#'")
 			}
-			if strings.Contains(parts[0], " ") {
-				return nil, fmt.Errorf("invalid data format, room name cannot contain spaces")
-			}
 
 			// Check for duplicate rooms
 			if _, exists := graph.Rooms[parts[0]]; exists {
@@ -107,6 +105,9 @@ func ParseInput(filename string) (*models.Graph, error) {
 
 			graph.Rooms[room.Name] = room
 			continue
+		} else if len(parts) > 3 {
+			// Catch rooms that contain white spaces
+			return nil, fmt.Errorf("invalid data format, room name cannot contain spaces")
 		}
 
 		// Parse Links

@@ -222,3 +222,27 @@ Lroom-room2
 		t.Errorf("Expected error '%s', but got: %v", expectedError, err)
 	}
 }
+
+func TestParseInput_RoomNameWithSpaces(t *testing.T) {
+	tempFile, err := os.CreateTemp("", "test_input_*.txt")
+	if err != nil {
+		t.Fatalf("Failed to create temp file: %v", err)
+	}
+	defer os.Remove(tempFile.Name())
+
+	_, err = tempFile.WriteString("10\n##start\ninvalid room 0 0\n##end\nend 1 1\ninvalid room-end\n")
+	if err != nil {
+		t.Fatalf("Failed to write to temp file: %v", err)
+	}
+	tempFile.Close()
+
+	_, err = utils.ParseInput(tempFile.Name())
+	if err == nil {
+		t.Error("Expected an error for room name with spaces, but got nil")
+	}
+
+	expectedError := "invalid data format, room name cannot contain spaces"
+	if err.Error() != expectedError {
+		t.Errorf("Expected error '%s', but got '%s'", expectedError, err.Error())
+	}
+}
