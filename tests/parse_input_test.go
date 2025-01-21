@@ -304,3 +304,35 @@ func TestParseInput_InvalidRoomCoordinates(t *testing.T) {
 		t.Errorf("Expected error message '%s', but got '%s'", expectedError, err.Error())
 	}
 }
+
+func TestParseInput_LinksToNonExistentRooms(t *testing.T) {
+	tempFile, err := os.CreateTemp("", "test_input_*.txt")
+	if err != nil {
+		t.Fatalf("Failed to create temp file: %v", err)
+	}
+	defer os.Remove(tempFile.Name())
+
+	input := `3
+room1 0 0
+room2 1 1
+##start
+room3 2 2
+##end
+room4 3 3
+room1-room2
+room2-nonexistent
+`
+
+	if _, err := tempFile.WriteString(input); err != nil {
+		t.Fatalf("Failed to write to temp file: %v", err)
+	}
+	tempFile.Close()
+
+	_, err = utils.ParseInput(tempFile.Name())
+	if err == nil {
+		t.Error("Expected an error for links referencing non-existent rooms, but got nil")
+	}
+	if !strings.Contains(err.Error(), "link references unknown room: nonexistent") {
+		t.Errorf("Expected error message to contain 'link references unknown room: nonexistent', but got: %v", err)
+	}
+}
