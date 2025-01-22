@@ -219,3 +219,52 @@ func TestGetAllPaths_EndRoomDoesNotExist(t *testing.T) {
 		t.Errorf("Expected empty slice, got %v", paths)
 	}
 }
+
+func TestContains(t *testing.T) {
+	tests := []struct {
+		name     string
+		path     []string
+		room     string
+		expected bool
+	}{
+		{
+			name:     "Room exists in path",
+			path:     []string{"room1", "room2", "room3"},
+			room:     "room2",
+			expected: true,
+		},
+		{
+			name:     "Room does not exist in path",
+			path:     []string{"room1", "room2", "room3"},
+			room:     "room4",
+			expected: false,
+		},
+		{
+			name:     "Empty path",
+			path:     []string{},
+			room:     "room1",
+			expected: false,
+		},
+		{
+			name:     "Room exists at the beginning of path",
+			path:     []string{"room1", "room2", "room3"},
+			room:     "room1",
+			expected: true,
+		},
+		{
+			name:     "Room exists at the end of path",
+			path:     []string{"room1", "room2", "room3"},
+			room:     "room3",
+			expected: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := utils.Contains(tt.path, tt.room)
+			if result != tt.expected {
+				t.Errorf("Contains(%v, %q) = %v; want %v", tt.path, tt.room, result, tt.expected)
+			}
+		})
+	}
+}
