@@ -13,13 +13,13 @@ type Ant struct {
 }
 
 type PathInfo struct {
-	Path     []string
-	Length   int
+	Path      []string
+	Length    int
 	AntsUsing int
 }
 
 // Improved distribution algorithm focusing on parallel path usage
-func distributeAnts(paths [][]string, totalAnts int) []PathInfo {
+func DistributeAnts(paths [][]string, totalAnts int) []PathInfo {
 	if len(paths) == 0 || totalAnts <= 0 {
 		return nil
 	}
@@ -28,13 +28,13 @@ func distributeAnts(paths [][]string, totalAnts int) []PathInfo {
 	pathInfos := make([]PathInfo, len(paths))
 	for i, path := range paths {
 		pathInfos[i] = PathInfo{
-			Path:     path,
-			Length:   len(path) - 1,
+			Path:      path,
+			Length:    len(path) - 1,
 			AntsUsing: 0,
 		}
 	}
 
-	// Sort paths by length
+	// Sort paths by length in ascending order
 	sort.Slice(pathInfos, func(i, j int) bool {
 		return pathInfos[i].Length < pathInfos[j].Length
 	})
@@ -45,7 +45,8 @@ func distributeAnts(paths [][]string, totalAnts int) []PathInfo {
 		// Find the path that would finish earliest with one more ant
 		bestIdx := 0
 		bestTime := pathInfos[0].Length + pathInfos[0].AntsUsing + 1
-		
+
+		// Find the Best Path to Add one more Ant
 		for i := range pathInfos {
 			finishTime := pathInfos[i].Length + pathInfos[i].AntsUsing + 1
 			if finishTime <= bestTime {
@@ -53,7 +54,8 @@ func distributeAnts(paths [][]string, totalAnts int) []PathInfo {
 				bestIdx = i
 			}
 		}
-		
+
+		// Assign Ant to Best Path
 		pathInfos[bestIdx].AntsUsing++
 		remainingAnts--
 	}
@@ -78,18 +80,18 @@ func simulateMovements(ants []*Ant) {
 
 	activeAnts := make([]*Ant, 0)
 	antIndex := 0
-	
+
 	for {
 		movements := make([]string, 0)
 		occupiedRooms := make(map[string]bool)
-		
+
 		// Process existing active ants
 		newActiveAnts := make([]*Ant, 0)
 		for _, ant := range activeAnts {
 			if ant.Position >= len(ant.Path)-1 {
 				continue
 			}
-			
+
 			nextRoom := ant.Path[ant.Position+1]
 			if !occupiedRooms[nextRoom] || nextRoom == ant.Path[len(ant.Path)-1] {
 				ant.Position++
@@ -104,16 +106,16 @@ func simulateMovements(ants []*Ant) {
 				newActiveAnts = append(newActiveAnts, ant)
 			}
 		}
-		
+
 		// Try to add new ants from each path
 		for pathKey, pathAnts := range antsByPath {
 			if antIndex >= len(pathAnts) {
 				continue
 			}
-			
+
 			path := strings.Split(pathKey, ",")
 			nextRoom := path[1] // First room after start
-			
+
 			if !occupiedRooms[nextRoom] {
 				ant := pathAnts[antIndex]
 				ant.Position = 1
@@ -122,16 +124,16 @@ func simulateMovements(ants []*Ant) {
 				newActiveAnts = append(newActiveAnts, ant)
 			}
 		}
-		
+
 		if len(movements) == 0 {
 			break
 		}
-		
+
 		// Sort movements for consistent output
 		sort.Slice(movements, func(i, j int) bool {
 			return movements[i] < movements[j]
 		})
-		
+
 		fmt.Println(strings.Join(movements, " "))
 		activeAnts = newActiveAnts
 		antIndex++
@@ -145,12 +147,12 @@ func SimulateAntMovement(paths [][]string, antCount int) {
 		return
 	}
 
-	pathInfos := distributeAnts(validPaths, antCount)
-	
+	pathInfos := DistributeAnts(validPaths, antCount)
+
 	// Create and assign ants
 	var ants []*Ant
 	currentAntID := 1
-	
+
 	// Create ants based on distribution
 	for _, pathInfo := range pathInfos {
 		for i := 0; i < pathInfo.AntsUsing; i++ {
@@ -169,16 +171,16 @@ func SimulateAntMovement(paths [][]string, antCount int) {
 func filterValidPaths(paths [][]string) [][]string {
 	var validPaths [][]string
 	for _, path := range paths {
-		if isValidPath(path) {
+		if IsValidPath(path) {
 			validPaths = append(validPaths, path)
 		}
 	}
 	return validPaths
 }
 
-func isValidPath(path []string) bool {
+func IsValidPath(path []string) bool {
 	seen := make(map[string]bool)
-	
+
 	for i := 1; i < len(path)-1; i++ {
 		room := path[i]
 		if seen[room] {

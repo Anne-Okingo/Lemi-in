@@ -1,12 +1,14 @@
 package utils
 
 import (
-	"os"
-	"fmt"
-	"strings"
 	"bufio"
+	"fmt"
+	"os"
+	"regexp"
+	"strings"
 )
-func PrintFileContents(string){
+
+func PrintFileContents(string) {
 	// Print the input data
 	content, err := ValidContent(os.Args[1])
 	if err != nil {
@@ -39,17 +41,24 @@ func ValidContent(filename string) ([]string, error) {
 	validContent := []string{}
 	scanner := bufio.NewScanner(fileContent)
 
+	// Regular expression to allow only lines with 0-9, a-z, A-Z, and #
+	validRegex := regexp.MustCompile(`^([0-9a-zA-Z\s\-]+)$`)
+
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
-		if line == "" {
+		if line == ""  {
 			continue
 		}
+		if !strings.Contains(line, "##") && !validRegex.MatchString(line){
+				continue
+			
+		}
+		
 		validContent = append(validContent, line)
 	}
 
 	if err := scanner.Err(); err != nil {
 		return nil, fmt.Errorf("error scanning file: %v", err)
 	}
-
 	return validContent, nil
 }

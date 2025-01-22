@@ -6,6 +6,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+
 	"lemin/models"
 )
 
@@ -19,7 +20,7 @@ func ParseInput(filename string) (*models.Graph, error) {
 	graph := &models.Graph{
 		Rooms: make(map[string]*models.ARoom),
 	}
-	
+
 	scanner := bufio.NewScanner(file)
 	isStartRoom := false
 	isEndRoom := false
@@ -73,10 +74,7 @@ func ParseInput(filename string) (*models.Graph, error) {
 			if strings.HasPrefix(parts[0], "L") || strings.HasPrefix(parts[0], "#") {
 				return nil, fmt.Errorf("invalid data format, room name cannot start with 'L' or '#'")
 			}
-			if strings.Contains(parts[0], " ") {
-				return nil, fmt.Errorf("invalid data format, room name cannot contain spaces")
-			}
-			
+
 			// Check for duplicate rooms
 			if _, exists := graph.Rooms[parts[0]]; exists {
 				return nil, fmt.Errorf("invalid data format, duplicate room: %s", parts[0])
@@ -104,9 +102,12 @@ func ParseInput(filename string) (*models.Graph, error) {
 				graph.EndRoom = room.Name
 				isEndRoom = false
 			}
-			
+
 			graph.Rooms[room.Name] = room
 			continue
+		} else if len(parts) > 3 {
+			// Catch rooms that contain white spaces
+			return nil, fmt.Errorf("invalid data format, room name cannot contain spaces")
 		}
 
 		// Parse Links
@@ -117,7 +118,7 @@ func ParseInput(filename string) (*models.Graph, error) {
 			}
 
 			from, to := parts[0], parts[1]
-			
+
 			// Validate rooms exist
 			if _, ok := graph.Rooms[from]; !ok {
 				return nil, fmt.Errorf("invalid data format, link references unknown room: %s", from)
