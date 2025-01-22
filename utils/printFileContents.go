@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"regexp"
 	"strings"
 )
 
@@ -40,11 +41,19 @@ func ValidContent(filename string) ([]string, error) {
 	validContent := []string{}
 	scanner := bufio.NewScanner(fileContent)
 
+	// Regular expression to allow only lines with 0-9, a-z, A-Z, and #
+	validRegex := regexp.MustCompile(`^([0-9a-zA-Z\s\-]+)$`)
+
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
-		if line == "" {
+		if line == ""  {
 			continue
 		}
+		if !strings.Contains(line, "##") && !validRegex.MatchString(line){
+				continue
+			
+		}
+		
 		validContent = append(validContent, line)
 	}
 
@@ -52,5 +61,6 @@ func ValidContent(filename string) ([]string, error) {
 		return nil, fmt.Errorf("error scanning file: %v", err)
 	}
 
+	fmt.Println(validContent)
 	return validContent, nil
 }
