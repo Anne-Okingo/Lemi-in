@@ -19,7 +19,7 @@ type PathInfo struct {
 }
 
 // Improved distribution algorithm focusing on parallel path usage
-func distributeAnts(paths [][]string, totalAnts int) []PathInfo {
+func DistributeAnts(paths [][]string, totalAnts int) []PathInfo {
 	if len(paths) == 0 || totalAnts <= 0 {
 		return nil
 	}
@@ -34,7 +34,7 @@ func distributeAnts(paths [][]string, totalAnts int) []PathInfo {
 		}
 	}
 
-	// Sort paths by length
+	// Sort paths by length in ascending order
 	sort.Slice(pathInfos, func(i, j int) bool {
 		return pathInfos[i].Length < pathInfos[j].Length
 	})
@@ -46,6 +46,7 @@ func distributeAnts(paths [][]string, totalAnts int) []PathInfo {
 		bestIdx := 0
 		bestTime := pathInfos[0].Length + pathInfos[0].AntsUsing + 1
 
+		// Find the Best Path to Add one more Ant
 		for i := range pathInfos {
 			finishTime := pathInfos[i].Length + pathInfos[i].AntsUsing + 1
 			if finishTime <= bestTime {
@@ -54,6 +55,7 @@ func distributeAnts(paths [][]string, totalAnts int) []PathInfo {
 			}
 		}
 
+		// Assign Ant to Best Path
 		pathInfos[bestIdx].AntsUsing++
 		remainingAnts--
 	}
@@ -145,7 +147,7 @@ func SimulateAntMovement(paths [][]string, antCount int) {
 		return
 	}
 
-	pathInfos := distributeAnts(validPaths, antCount)
+	pathInfos := DistributeAnts(validPaths, antCount)
 
 	// Create and assign ants
 	var ants []*Ant
@@ -169,14 +171,14 @@ func SimulateAntMovement(paths [][]string, antCount int) {
 func filterValidPaths(paths [][]string) [][]string {
 	var validPaths [][]string
 	for _, path := range paths {
-		if isValidPath(path) {
+		if IsValidPath(path) {
 			validPaths = append(validPaths, path)
 		}
 	}
 	return validPaths
 }
 
-func isValidPath(path []string) bool {
+func IsValidPath(path []string) bool {
 	seen := make(map[string]bool)
 
 	for i := 1; i < len(path)-1; i++ {
