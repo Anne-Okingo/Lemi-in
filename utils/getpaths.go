@@ -2,7 +2,6 @@ package utils
 
 import (
 	"container/list"
-	"fmt"
 	"lemin/models"
 )
 
@@ -47,7 +46,6 @@ func GetAllPaths(rooms map[string]*models.ARoom, start, end string) [][]string {
 	}
 
 	// Return all found paths
-	fmt.Println(paths)
 	return paths
 }
 
