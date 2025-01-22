@@ -60,7 +60,5 @@ func ValidContent(filename string) ([]string, error) {
 	if err := scanner.Err(); err != nil {
 		return nil, fmt.Errorf("error scanning file: %v", err)
 	}
-
-	fmt.Println(validContent)
 	return validContent, nil
 }
