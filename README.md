@@ -45,7 +45,7 @@ Example:
 ---
 
 input example
-
+```
 20
 ##start
 0 2 0
@@ -57,7 +57,7 @@ input example
 0-3
 1-2
 3-2
-
+```
 ## Output Format
 
 1. The program displays the content of the input file.
@@ -118,73 +118,46 @@ $ go run . <filename>
 Example 1
 Input file (test0.txt):
 
+```
 3
-
 ##start
-
 1 23 3
-
 2 16 7
-
 ##end
-
 0 9 5
-
 0-4
-
 0-6
-
 1-3
-
 4-3
-
 5-2
-
 3-5
-
 4-2
-
 2-1
-
 7-6
-
 7-2
-
 7-4
-
 6-5
 
 Output:
 
 L1-3 L2-2
-
 L1-4 L2-5 L3-3
-
 L1-0 L2-6 L3-4
-
 L2-0 L3-0
+```
 
 Example 2
 Input file (test1.txt):
-
+```
 3
-
 ##start
-
 0 1 0
-
 ##end
-
 1 5 0
-
 2 9 0
-
 3 13 0
-
 0-2
-
 2-3
-
 3-1
 
 Output:
@@ -194,7 +167,7 @@ L1-3 L2-2
 L1-1 L2-3 L3-2
 L2-1 L3-3
 L3-1
-
+```
 ## Testing
 for a coverage test of the program, use the commands below
 
@@ -221,7 +194,7 @@ Finds all paths from start to end in a graph, avoiding cycles and ensuring all v
 The program then finds the shortest possible path then distributes ants accordingly.
 The program then validates and prints the input file content and a simulation of the ant movements/turns on the console.
 example output:
-
+```
 20
 ##start
 0 2 0
@@ -244,7 +217,7 @@ L11-3 L12-0 L13-1 L5-3
 L12-3 L13-0 L14-1 L6-3
 L13-3 L14-0 L7-3
 L14-3 L8-3
-
+```
 
 
 ## License
