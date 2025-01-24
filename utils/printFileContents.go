@@ -46,14 +46,14 @@ func ValidContent(filename string) ([]string, error) {
 
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
-		if line == ""  {
+		if line == "" {
 			continue
 		}
-		if !strings.Contains(line, "##") && !validRegex.MatchString(line){
-				continue
-			
+		if !strings.Contains(line, "##") && !validRegex.MatchString(line) {
+			continue
+
 		}
-		
+
 		validContent = append(validContent, line)
 	}
 
