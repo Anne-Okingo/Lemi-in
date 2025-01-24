@@ -76,3 +76,14 @@ func Check(path []string, graph * models.Graph) bool {
 	return true
 }
 
+
+// OptimizedPaths1 filters paths that don't share rooms.
+func OptimizedPaths1(graph *models.Graph) [][]string {
+	optimized := [][]string{}
+	for i := 1; i < len(graph.AllPaths); i++ {
+		if Check(graph.AllPaths[i], graph) {
+			optimized = append(optimized, graph.AllPaths[i])
+		}
+	}
+	return optimized
+}
