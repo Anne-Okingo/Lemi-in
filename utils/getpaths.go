@@ -6,6 +6,7 @@ import (
 	"fmt"
 )
 
+//Gets all paths from parsed Input then filters out the ones that conflict to minimize traffic
 func GetAllPaths(rooms map[string]*models.ARoom, start, end string) [][]string {
 	var paths [][]string
 	queue := list.New()
@@ -75,8 +76,7 @@ func FilterBestPaths(allPaths [][]string, start string, end string) [][]string {
 	return bestSolution
 }
 
-// canAddPath checks if the current path can be added to the existing solution
-// without any conflicts, ensuring no repeated rooms except for start and end.
+// canAddPath checks if the current path can be added to the existing solution without any conflicts, ensuring no repeated rooms except for start and end.
 func canAddPath(paths [][]string, candidate []string, start string, end string) bool {
 	// Iterate through the existing paths to check for conflicts.
 	for _, path := range paths {
