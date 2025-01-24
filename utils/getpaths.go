@@ -3,7 +3,6 @@ package utils
 import (
 	"container/list"
 	"lemin/models"
-	"sort"
 	"fmt"
 )
 
@@ -35,9 +34,9 @@ func GetAllPaths(rooms map[string]*models.ARoom, start, end string) [][]string {
 		}
 	}
 	
-	paths=SortPaths(paths)
+	//paths=SortPaths(paths)
 	fmt.Println("unfiltered",len(paths))
-	paths=FilterBestPaths(paths)
+	paths=FilterBestPaths(paths,start,end)
 	fmt.Println("filtered",len(paths))
 	return  paths
 }
@@ -52,59 +51,57 @@ func contains(path []string, room string) bool {
 }
 
 
-// SortPaths sorts the paths by length in ascending order.
-func SortPaths(paths [][]string) [][]string {
-    sort.Slice(paths, func(i, j int) bool {
-        return len(paths[i]) < len(paths[j])
-    })
-    return paths
-}
+// // SortPaths sorts the paths by length in ascending order.
+// func SortPaths(paths [][]string) [][]string {
+//     sort.Slice(paths, func(i, j int) bool {
+//         return len(paths[i]) < len(paths[j])
+//     })
+//     return paths
+// }
 
-// FilterBestPaths selects the most efficient set of paths for ant movement
-func FilterBestPaths(allPaths [][]string) [][]string {
-	// If no paths or only one path, return as is
-	if len(allPaths) <= 1 {
-		return allPaths
-	}
+// FilterBestPaths selects the most efficient set of paths for ant movement that doesn't contain conflicts between rooms.
+func FilterBestPaths(allPaths [][]string, start string, end string) [][]string {
+	bestSolution := [][]string{}
 
-	// Sort paths by length (shortest first)
-	sort.Slice(allPaths, func(i, j int) bool {
-		return len(allPaths[i]) < len(allPaths[j])
-	})
+	// Iterate through all paths to find the best solution.
+	for i := 0; i < len(allPaths); i++ {
+		currentSolution := [][]string{allPaths[i]}
+		for j := 0; j < len(allPaths); j++ {
+			// Ensure paths are not compared with themselves and check for conflicts.
+			if i != j && canAddPath(currentSolution, allPaths[j], start, end) {
+				currentSolution = append(currentSolution, allPaths[j])
+			}
+		}
 
-	// Initialize best paths with the shortest paths
-	bestPaths := [][]string{allPaths[0]}
-
-	// Iterate through remaining paths
-	for _, currentPath := range allPaths[1:] {
-		// Check for conflicts with existing best paths
-		if isPathCompatible(bestPaths, currentPath) {
-			bestPaths = append(bestPaths, currentPath)
+		// Update the best solution if the current one is longer (better).
+		if len(currentSolution) > len(bestSolution) {
+			bestSolution = currentSolution
 		}
 	}
 
-	return bestPaths
+	// Return the best solution found.
+	return bestSolution
 }
 
-// isPathCompatible checks if a path can be added without room conflicts
-func isPathCompatible(existingPaths [][]string, newPath []string) bool {
-	// Always allow start and end rooms to be shared
-	startRoom := newPath[0]
-	endRoom := newPath[len(newPath)-1]
+// canAddPath checks if the current path can be added to the existing solution
+// without any conflicts, ensuring no repeated rooms except for start and end.
+func canAddPath(paths [][]string, candidate []string, start string, end string) bool {
+	// Iterate through the existing paths to check for conflicts.
+	for _, path := range paths {
+		for _, room := range path {
+			// Skip start and end rooms.
+			if room == start || room == end {
+				continue
+			}
 
-	// Check each existing path
-	for _, existingPath := range existingPaths {
-		// Compare intermediate rooms
-		for _, newRoom := range newPath[1 : len(newPath)-1] {
-			for _, existingRoom := range existingPath[1 : len(existingPath)-1] {
-				// If an intermediate room is the same, paths conflict
-				if newRoom == existingRoom && 
-				   newRoom != startRoom && 
-				   newRoom != endRoom {
-					return false
+			// Check if the room already exists in the candidate path (conflict).
+			for _, candidateRoom := range candidate {
+				if room == candidateRoom {
+					return false // Conflict found, return false.
 				}
 			}
 		}
 	}
+	// No conflicts found, return true.
 	return true
 }
