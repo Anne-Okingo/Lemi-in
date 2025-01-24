@@ -57,3 +57,22 @@ func Contains(path []string, room string) bool {
 	return false
 }
 
+
+// Check verifies if a path shares any rooms with already optimized paths (excluding start/end).
+func Check(path []string, graph * models.Graph) bool {
+	// Use a map for faster lookups
+	visitedRooms := make(map[string]struct{})
+	for _, optimizedpath := range graph.AllPaths {
+		for _, room := range optimizedpath[1 : len(optimizedpath)-1] { // Ignore start and end rooms
+			visitedRooms[room] = struct{}{}
+		}
+	}
+
+	for _, room := range path[1 : len(path)-1] { // Ignore start and end rooms
+		if _, found := visitedRooms[room]; found {
+			return false
+		}
+	}
+	return true
+}
+
