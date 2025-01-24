@@ -87,3 +87,8 @@ func OptimizedPaths1(graph *models.Graph) [][]string {
 	}
 	return optimized
 }
+
+func deletepath(graph *models.Graph, i int) [][]string {
+	// Remove the path at index i from graph.AllPaths
+	return append(graph.AllPaths[:i], graph.AllPaths[i+1:]...)
+}
