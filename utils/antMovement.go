@@ -138,8 +138,9 @@ func simulateMovements(ants []*Ant) {
 	}
 }
 
-func SimulateAntMovement(paths [][]string, antCount int) {
-	validPaths := filterValidPaths(paths)
+func SimulateAntMovement(validPaths [][]string, antCount int) {
+	
+	// validPaths := filterValidPaths(paths)
 	if len(validPaths) == 0 {
 		fmt.Println("ERROR: No valid paths available")
 		return
@@ -164,27 +165,4 @@ func SimulateAntMovement(paths [][]string, antCount int) {
 	}
 
 	simulateMovements(ants)
-}
-
-func filterValidPaths(paths [][]string) [][]string {
-	var validPaths [][]string
-	for _, path := range paths {
-		if isValidPath(path) {
-			validPaths = append(validPaths, path)
-		}
-	}
-	return validPaths
-}
-
-func isValidPath(path []string) bool {
-	seen := make(map[string]bool)
-
-	for i := 1; i < len(path)-1; i++ {
-		room := path[i]
-		if seen[room] {
-			return false
-		}
-		seen[room] = true
-	}
-	return true
 }
