@@ -51,14 +51,6 @@ func contains(path []string, room string) bool {
 }
 
 
-// // SortPaths sorts the paths by length in ascending order.
-// func SortPaths(paths [][]string) [][]string {
-//     sort.Slice(paths, func(i, j int) bool {
-//         return len(paths[i]) < len(paths[j])
-//     })
-//     return paths
-// }
-
 // FilterBestPaths selects the most efficient set of paths for ant movement that doesn't contain conflicts between rooms.
 func FilterBestPaths(allPaths [][]string, start string, end string) [][]string {
 	bestSolution := [][]string{}
