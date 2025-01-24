@@ -11,6 +11,7 @@ Lem-In is a Go-based program that simulates a digital ant farm. The goal is to f
 - **Pathfinding**: Identifies the quickest paths for ants to traverse the colony.
 - **Path Optimization**: Avoids traffic jams and ensures ants follow the shortest paths effectively.
 - **Error Handling**: Validates input and handles poorly formatted or invalid data gracefully.
+- **Unit Testing** : The program has unit test that cover most satatemnnets
 
 ---
 
@@ -43,6 +44,20 @@ Example:
 
 ---
 
+input example
+```
+20
+##start
+0 2 0
+1 4 1
+2 6 0
+##end
+3 5 3
+0-1
+0-3
+1-2
+3-2
+```
 ## Output Format
 
 1. The program displays the content of the input file.
@@ -103,73 +118,46 @@ $ go run . <filename>
 Example 1
 Input file (test0.txt):
 
+```
 3
-
 ##start
-
 1 23 3
-
 2 16 7
-
 ##end
-
 0 9 5
-
 0-4
-
 0-6
-
 1-3
-
 4-3
-
 5-2
-
 3-5
-
 4-2
-
 2-1
-
 7-6
-
 7-2
-
 7-4
-
 6-5
 
 Output:
 
 L1-3 L2-2
-
 L1-4 L2-5 L3-3
-
 L1-0 L2-6 L3-4
-
 L2-0 L3-0
+```
 
 Example 2
 Input file (test1.txt):
-
+```
 3
-
 ##start
-
 0 1 0
-
 ##end
-
 1 5 0
-
 2 9 0
-
 3 13 0
-
 0-2
-
 2-3
-
 3-1
 
 Output:
@@ -179,6 +167,17 @@ L1-3 L2-2
 L1-1 L2-3 L3-2
 L2-1 L3-3
 L3-1
+```
+## Testing
+for a coverage test of the program, use the commands below
+
+``` bash
+cd tests
+```
+
+```bash
+go test -cover
+```
 
 ### Development algorithm logic notes
 The program first Validates input for:
@@ -192,13 +191,52 @@ Find path : the program finds all possible paths between two rooms (start and en
 Data structure : Queue- Implements Breadth-First Search BFS traversal.
 Path: A slice of strings representing the current traversal/path.
 Finds all paths from start to end in a graph, avoiding cycles and ensuring all valid paths are explored
+The program then finds the shortest possible path then distributes ants accordingly.
+The program then validates and prints the input file content and a simulation of the ant movements/turns on the console.
+example output:
+```
+20
+##start
+0 2 0
+1 4 1
+2 6 0
+##end
+3 5 3
+0-1
+0-3
+1-2
+3-2
 
-The program then validates and prints the input file content
+
+Simulating Ant Movement:
+L1-3 L9-1
+L10-1 L2-3 L9-0
+L10-0 L11-1 L3-3 L9-3
+L10-3 L11-0 L12-1 L4-3
+L11-3 L12-0 L13-1 L5-3
+L12-3 L13-0 L14-1 L6-3
+L13-3 L14-0 L7-3
+L14-3 L8-3
+```
 
 
 ## License
-This project is open-source and available under the MIT License.
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+
 
 ## Contributions
 Contributions, issues, and feature requests are welcome!
 Feel free to check the issues page for known bugs or feature ideas.
+
+## Authors
+[Alice Okingo](https://github.com/Anne-Okingo)
+
+[Cynthia Oketch](https://learn.zone01kisumu.ke/git/coketch)
+
+[David Odhiambo](https://learn.zone01kisumu.ke/git/davodhiambo)
+
+[Rodney Ochieng](https://learn.zone01kisumu.ke/git/rodnochieng)
+
+
