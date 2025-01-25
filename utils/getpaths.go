@@ -3,8 +3,10 @@ package utils
 import (
 	// "container/list"
 	"lemin/models"
+	"fmt"
 )
 
+//Gets all paths from parsed Input then filters out the ones that conflict to minimize traffic
 func GetAllPaths(rooms map[string]*models.ARoom, start, end string) [][]string {
 	var paths [][]string
 	queue := [][]string{} // Queue to hold paths
@@ -42,9 +44,12 @@ func GetAllPaths(rooms map[string]*models.ARoom, start, end string) [][]string {
 			}
 		}
 	}
-
-	// Return all found paths
-	return paths
+	
+	//paths=SortPaths(paths)
+	fmt.Println("unfiltered",len(paths))
+	paths=FilterBestPaths(paths,start,end)
+	fmt.Println("filtered",len(paths))
+	return  paths
 }
 
 
@@ -58,37 +63,48 @@ func Contains(path []string, room string) bool {
 }
 
 
-// Check verifies if a path shares any rooms with already optimized paths (excluding start/end).
-func Check(path []string, graph * models.Graph) bool {
-	// Use a map for faster lookups
-	visitedRooms := make(map[string]struct{})
-	for _, optimizedpath := range graph.AllPaths {
-		for _, room := range optimizedpath[1 : len(optimizedpath)-1] { // Ignore start and end rooms
-			visitedRooms[room] = struct{}{}
+// FilterBestPaths selects the most efficient set of paths for ant movement that doesn't contain conflicts between rooms.
+func FilterBestPaths(allPaths [][]string, start string, end string) [][]string {
+	bestSolution := [][]string{}
+
+	// Iterate through all paths to find the best solution.
+	for i := 0; i < len(allPaths); i++ {
+		currentSolution := [][]string{allPaths[i]}
+		for j := 0; j < len(allPaths); j++ {
+			// Ensure paths are not compared with themselves and check for conflicts.
+			if i != j && canAddPath(currentSolution, allPaths[j], start, end) {
+				currentSolution = append(currentSolution, allPaths[j])
+			}
+		}
+
+		// Update the best solution if the current one is longer (better).
+		if len(currentSolution) > len(bestSolution) {
+			bestSolution = currentSolution
 		}
 	}
 
-	for _, room := range path[1 : len(path)-1] { // Ignore start and end rooms
-		if _, found := visitedRooms[room]; found {
-			return false
+	// Return the best solution found.
+	return bestSolution
+}
+
+// canAddPath checks if the current path can be added to the existing solution without any conflicts, ensuring no repeated rooms except for start and end.
+func canAddPath(paths [][]string, candidate []string, start string, end string) bool {
+	// Iterate through the existing paths to check for conflicts.
+	for _, path := range paths {
+		for _, room := range path {
+			// Skip start and end rooms.
+			if room == start || room == end {
+				continue
+			}
+
+			// Check if the room already exists in the candidate path (conflict).
+			for _, candidateRoom := range candidate {
+				if room == candidateRoom {
+					return false // Conflict found, return false.
+				}
+			}
 		}
 	}
+	// No conflicts found, return true.
 	return true
-}
-
-
-// OptimizedPaths1 filters paths that don't share rooms.
-func OptimizedPaths1(graph *models.Graph) [][]string {
-	optimized := [][]string{}
-	for i := 1; i < len(graph.AllPaths); i++ {
-		if Check(graph.AllPaths[i], graph) {
-			optimized = append(optimized, graph.AllPaths[i])
-		}
-	}
-	return optimized
-}
-
-func deletepath(graph *models.Graph, i int) [][]string {
-	// Remove the path at index i from graph.AllPaths
-	return append(graph.AllPaths[:i], graph.AllPaths[i+1:]...)
 }
