@@ -118,6 +118,9 @@ func ParseInput(filename string) (*models.Graph, error) {
 			}
 
 			from, to := parts[0], parts[1]
+			if from == to {
+				return nil, fmt.Errorf("invalid data format, link references itself: %s", from)
+			}
 
 			// Validate rooms exist
 			if _, ok := graph.Rooms[from]; !ok {
