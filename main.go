@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"os"
 	"lemin/utils"
+	"os"
 )
 
 func main() {
