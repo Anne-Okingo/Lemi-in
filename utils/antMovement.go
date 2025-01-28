@@ -141,7 +141,7 @@ func simulateMovements(ants []*Ant) {
 }
 
 func SimulateAntMovement(validPaths [][]string, antCount int) {
-	
+
 	// validPaths := filterValidPaths(paths)
 	if len(validPaths) == 0 {
 		fmt.Println("ERROR: No valid paths available")

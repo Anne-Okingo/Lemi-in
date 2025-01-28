@@ -169,3 +169,7 @@ func max(a, b string) string {
 	}
 	return b
 }
+
+func ValidFile(file string) bool {
+	return strings.HasSuffix(file, ".txt")
+}
