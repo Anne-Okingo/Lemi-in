@@ -70,7 +70,6 @@ func TestGetAllPaths_WithNoOutgoingLinks(t *testing.T) {
 	}
 }
 
-
 func TestGetAllPaths_StartRoomDoesNotExist(t *testing.T) {
 	rooms := map[string]*models.ARoom{
 		"A": {Name: "A", Links: []string{"B"}},
