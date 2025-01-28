@@ -40,18 +40,6 @@ func TestGetAllPaths_SingleDirectPath(t *testing.T) {
 	}
 }
 
-func equalPaths(path1, path2 []string) bool {
-	if len(path1) != len(path2) {
-		return false
-	}
-	for i := range path1 {
-		if path1[i] != path2[i] {
-			return false
-		}
-	}
-	return true
-}
-
 func TestGetAllPaths_SameStartEnd(t *testing.T) {
 	rooms := map[string]*models.ARoom{
 		"A": {Name: "A", Links: []string{}},
