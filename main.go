@@ -20,6 +20,8 @@ func main() {
 		return
 	}
 
+	
+
 	graph, err := utils.ParseInput(os.Args[1])
 	if err != nil {
 		fmt.Println("ERROR:", err)
