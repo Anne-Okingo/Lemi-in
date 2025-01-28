@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
-	"lemin/utils"
 	"os"
+
+	"lemin/utils"
 )
 
 func main() {
@@ -31,9 +32,7 @@ func main() {
 		return
 	}
 
-	fmt.Println("Input File Content:")
 	utils.PrintFileContents(os.Args[1])
 
-	fmt.Println("\nSimulating Ant Movement:")
 	utils.SimulateAntMovement(graph.AllPaths, graph.AntCount)
 }
