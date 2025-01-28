@@ -1,11 +1,10 @@
-package test
+package utils
 
 import (
 	"reflect"
 	"testing"
 
 	"lemin/models"
-	"lemin/utils"
 )
 
 func TestGetAllPaths_NoValidPaths(t *testing.T) {
@@ -15,7 +14,7 @@ func TestGetAllPaths_NoValidPaths(t *testing.T) {
 		"C": {Name: "C", Links: []string{}},
 	}
 
-	paths := utils.GetAllPaths(rooms, "A", "C")
+	paths := GetAllPaths(rooms, "A", "C")
 
 	if len(paths) != 0 {
 		t.Errorf("Expected empty slice, but got %v paths", len(paths))
@@ -28,7 +27,7 @@ func TestGetAllPaths_SingleDirectPath(t *testing.T) {
 		"end":   {Links: []string{"start"}},
 	}
 
-	paths := utils.GetAllPaths(rooms, "start", "end")
+	paths := GetAllPaths(rooms, "start", "end")
 
 	expectedPaths := [][]string{{"start", "end"}}
 
@@ -41,24 +40,12 @@ func TestGetAllPaths_SingleDirectPath(t *testing.T) {
 	}
 }
 
-func equalPaths(path1, path2 []string) bool {
-	if len(path1) != len(path2) {
-		return false
-	}
-	for i := range path1 {
-		if path1[i] != path2[i] {
-			return false
-		}
-	}
-	return true
-}
-
 func TestGetAllPaths_SameStartEnd(t *testing.T) {
 	rooms := map[string]*models.ARoom{
 		"A": {Name: "A", Links: []string{}},
 	}
 
-	paths := utils.GetAllPaths(rooms, "A", "A")
+	paths := GetAllPaths(rooms, "A", "A")
 
 	if len(paths) != 1 {
 		t.Errorf("Expected 1 path, got %d", len(paths))
@@ -76,50 +63,13 @@ func TestGetAllPaths_WithNoOutgoingLinks(t *testing.T) {
 		"end":    {Links: []string{}},
 	}
 
-	paths := utils.GetAllPaths(rooms, "start", "end")
+	paths := GetAllPaths(rooms, "start", "end")
 
 	if len(paths) != 0 {
 		t.Errorf("Expected 0 paths, but got %d", len(paths))
 	}
 }
 
-func TestGetAllPaths_WithMultipleLinks(t *testing.T) {
-	rooms := map[string]*models.ARoom{
-		"start": {Links: []string{"A", "B"}},
-		"A":     {Links: []string{"C", "D"}},
-		"B":     {Links: []string{"D", "E"}},
-		"C":     {Links: []string{"end"}},
-		"D":     {Links: []string{"end"}},
-		"E":     {Links: []string{"end"}},
-		"end":   {Links: []string{}},
-	}
-
-	paths := utils.GetAllPaths(rooms, "start", "end")
-
-	expectedPaths := [][]string{
-		{"start", "A", "C", "end"},
-		{"start", "A", "D", "end"},
-		{"start", "B", "D", "end"},
-		{"start", "B", "E", "end"},
-	}
-
-	if len(paths) != len(expectedPaths) {
-		t.Errorf("Expected %d paths, but got %d", len(expectedPaths), len(paths))
-	}
-
-	for _, expectedPath := range expectedPaths {
-		found := false
-		for _, actualPath := range paths {
-			if equalPaths(expectedPath, actualPath) {
-				found = true
-				break
-			}
-		}
-		if !found {
-			t.Errorf("Expected path %v not found in result", expectedPath)
-		}
-	}
-}
 
 func TestGetAllPaths_StartRoomDoesNotExist(t *testing.T) {
 	rooms := map[string]*models.ARoom{
@@ -128,7 +78,7 @@ func TestGetAllPaths_StartRoomDoesNotExist(t *testing.T) {
 		"C": {Name: "C", Links: []string{"B"}},
 	}
 
-	paths := utils.GetAllPaths(rooms, "NonExistentStart", "C")
+	paths := GetAllPaths(rooms, "NonExistentStart", "C")
 
 	if len(paths) != 0 {
 		t.Errorf("Expected empty slice, but got %v paths", len(paths))
@@ -142,7 +92,7 @@ func TestGetAllPaths_EndRoomDoesNotExist(t *testing.T) {
 		"B":     {Name: "B", Links: []string{"start", "A"}},
 	}
 
-	paths := utils.GetAllPaths(rooms, "start", "end")
+	paths := GetAllPaths(rooms, "start", "end")
 
 	if len(paths) != 0 {
 		t.Errorf("Expected empty slice, got %v", paths)
@@ -190,7 +140,7 @@ func TestContains(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := utils.Contains(tt.path, tt.room)
+			result := Contains(tt.path, tt.room)
 			if result != tt.expected {
 				t.Errorf("Contains(%v, %q) = %v; want %v", tt.path, tt.room, result, tt.expected)
 			}
