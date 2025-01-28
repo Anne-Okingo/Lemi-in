@@ -2,18 +2,18 @@ package utils
 
 import (
 	// "container/list"
-	"lemin/models"
 	"fmt"
+	"lemin/models"
 )
 
-//Gets all paths from parsed Input then filters out the ones that conflict to minimize traffic
+// Gets all paths from parsed Input then filters out the ones that conflict to minimize traffic
 func GetAllPaths(rooms map[string]*models.ARoom, start, end string) [][]string {
 	var paths [][]string
-	queue := [][]string{} // Queue to hold paths
+	queue := [][]string{}                  // Queue to hold paths
 	queue = append(queue, []string{start}) // Initialize the queue with the start room
 
 	if _, exists := rooms[start]; !exists {
-		return paths// Return early if the start room doesn't exist
+		return paths // Return early if the start room doesn't exist
 	}
 
 	// BFS loop
@@ -44,14 +44,13 @@ func GetAllPaths(rooms map[string]*models.ARoom, start, end string) [][]string {
 			}
 		}
 	}
-	
-	//paths=SortPaths(paths)
-	fmt.Println("unfiltered",len(paths))
-	paths=FilterBestPaths(paths,start,end)
-	fmt.Println("filtered",len(paths))
-	return  paths
-}
 
+	//paths=SortPaths(paths)
+	fmt.Println("unfiltered", len(paths))
+	paths = FilterBestPaths(paths, start, end)
+	fmt.Println("filtered", len(paths))
+	return paths
+}
 
 func Contains(path []string, room string) bool {
 	for _, r := range path {
@@ -61,7 +60,6 @@ func Contains(path []string, room string) bool {
 	}
 	return false
 }
-
 
 // FilterBestPaths selects the most efficient set of paths for ant movement that doesn't contain conflicts between rooms.
 func FilterBestPaths(allPaths [][]string, start string, end string) [][]string {
