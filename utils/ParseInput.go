@@ -156,14 +156,14 @@ func ParseInput(filename string) (*models.Graph, error) {
 	return graph, nil
 }
 
-func min(a, b string) string {
+func Min(a, b string) string {
 	if a < b {
 		return a
 	}
 	return b
 }
 
-func max(a, b string) string {
+func Max(a, b string) string {
 	if a > b {
 		return a
 	}
