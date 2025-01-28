@@ -2,14 +2,20 @@ package main
 
 import (
 	"fmt"
-	"os"
 	"lemin/utils"
+	"os"
 )
 
 func main() {
 	// Check for valid number command-line arguments
 	if len(os.Args) != 2 {
 		fmt.Println("Usage: go run . <filename>")
+		return
+	}
+
+	// Check is file parsed is a text file
+	if !utils.ValidFile(os.Args[1]) {
+		fmt.Println("ERROR: Wrong file format")
 		return
 	}
 
