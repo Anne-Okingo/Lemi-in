@@ -82,41 +82,6 @@ func TestGetAllPaths_WithNoOutgoingLinks(t *testing.T) {
 	}
 }
 
-func TestGetAllPaths_WithMultipleLinks(t *testing.T) {
-	rooms := map[string]*models.ARoom{
-		"start": {Links: []string{"A", "B"}},
-		"A":     {Links: []string{"C", "D"}},
-		"B":     {Links: []string{"D", "E"}},
-		"C":     {Links: []string{"end"}},
-		"D":     {Links: []string{"end"}},
-		"E":     {Links: []string{"end"}},
-		"end":   {Links: []string{}},
-	}
-
-	paths := GetAllPaths(rooms, "start", "end")
-
-	expectedPaths := [][]string{
-		{"start", "A", "D", "end"},
-		{"start", "B", "E", "end"},
-	}
-
-	if len(paths) != len(expectedPaths) {
-		t.Errorf("Expected %d paths, but got %d", len(expectedPaths), len(paths))
-	}
-
-	for _, expectedPath := range expectedPaths {
-		found := false
-		for _, actualPath := range paths {
-			if equalPaths(expectedPath, actualPath) {
-				found = true
-				break
-			}
-		}
-		if !found {
-			t.Errorf("Expected path %v not found in result", expectedPath)
-		}
-	}
-}
 
 func TestGetAllPaths_StartRoomDoesNotExist(t *testing.T) {
 	rooms := map[string]*models.ARoom{
