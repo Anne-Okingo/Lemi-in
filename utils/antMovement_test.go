@@ -1,9 +1,7 @@
-package test
+package utils
 
 import (
 	"testing"
-
-	"lemin/utils"
 )
 
 func TestDistributeAnts(t *testing.T) {
@@ -11,13 +9,13 @@ func TestDistributeAnts(t *testing.T) {
 		name          string
 		paths         [][]string
 		totalAnts     int
-		expectedPaths []utils.PathInfo
+		expectedPaths []PathInfo
 	}{
 		{
 			name:      "Simple test with 3 paths and 6 ants",
 			paths:     [][]string{{"A", "B", "C"}, {"A", "D", "E"}, {"F", "G", "H"}},
 			totalAnts: 6,
-			expectedPaths: []utils.PathInfo{
+			expectedPaths: []PathInfo{
 				{Path: []string{"A", "B", "C"}, Length: 2, AntsUsing: 2},
 				{Path: []string{"A", "D", "E"}, Length: 2, AntsUsing: 2},
 				{Path: []string{"F", "G", "H"}, Length: 2, AntsUsing: 2},
@@ -27,7 +25,7 @@ func TestDistributeAnts(t *testing.T) {
 			name:      "Test with 2 paths and 5 ants",
 			paths:     [][]string{{"A", "B", "C"}, {"D", "E", "F"}},
 			totalAnts: 5,
-			expectedPaths: []utils.PathInfo{
+			expectedPaths: []PathInfo{
 				{Path: []string{"A", "B", "C"}, Length: 2, AntsUsing: 2},
 				{Path: []string{"D", "E", "F"}, Length: 2, AntsUsing: 3},
 			},
@@ -43,7 +41,7 @@ func TestDistributeAnts(t *testing.T) {
 			name:      "Edge case with 1 path and 5 ants",
 			paths:     [][]string{{"A", "B", "C", "D"}},
 			totalAnts: 5,
-			expectedPaths: []utils.PathInfo{
+			expectedPaths: []PathInfo{
 				{Path: []string{"A", "B", "C", "D"}, Length: 3, AntsUsing: 5},
 			},
 		},
@@ -51,7 +49,7 @@ func TestDistributeAnts(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := utils.DistributeAnts(tt.paths, tt.totalAnts)
+			result := DistributeAnts(tt.paths, tt.totalAnts)
 
 			// Compare result with expected paths
 			if len(result) != len(tt.expectedPaths) {

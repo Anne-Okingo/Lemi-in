@@ -1,12 +1,10 @@
-package test
+package utils
 
 import (
 	"os"
 	"reflect"
 	"strings"
 	"testing"
-
-	"lemin/utils"
 )
 
 func TestParseInput_MultipleEndRooms(t *testing.T) {
@@ -37,7 +35,7 @@ room1-end2`
 	}
 
 	// Test ParseInput function
-	_, err = utils.ParseInput(tmpfile.Name())
+	_, err = ParseInput(tmpfile.Name())
 
 	// Check if an error is returned
 	if err == nil {
@@ -67,7 +65,7 @@ func TestParseInput_NoAnts(t *testing.T) {
 	tmpfile.Close()
 
 	// Call ParseInput with the temporary file
-	_, err = utils.ParseInput(tmpfile.Name())
+	_, err = ParseInput(tmpfile.Name())
 
 	// Check if an error was returned
 	if err == nil {
@@ -106,7 +104,7 @@ B-C`
 	}
 
 	// Test ParseInput function
-	_, err = utils.ParseInput(tmpfile.Name())
+	_, err = ParseInput(tmpfile.Name())
 
 	// Check if the error message is correct
 	expectedError := "invalid data format, multiple start rooms"
@@ -142,7 +140,7 @@ room2-end`
 	}
 
 	// Parse the input file
-	graph, err := utils.ParseInput(tmpfile.Name())
+	graph, err := ParseInput(tmpfile.Name())
 	if err != nil {
 		t.Fatalf("ParseInput failed: %v", err)
 	}
@@ -214,7 +212,7 @@ Lroom-room2
 	}
 
 	// Call the function with the temporary file
-	_, err = utils.ParseInput(tmpfile.Name())
+	_, err = ParseInput(tmpfile.Name())
 
 	// Check if the error message is as expected
 	expectedError := "invalid data format, room name cannot start with 'L' or '#'"
@@ -236,7 +234,7 @@ func TestParseInput_RoomNameWithSpaces(t *testing.T) {
 	}
 	tempFile.Close()
 
-	_, err = utils.ParseInput(tempFile.Name())
+	_, err = ParseInput(tempFile.Name())
 	if err == nil {
 		t.Error("Expected an error for room name with spaces, but got nil")
 	}
@@ -271,7 +269,7 @@ room2-end`
 	}
 	tempFile.Close()
 
-	_, err = utils.ParseInput(tempFile.Name())
+	_, err = ParseInput(tempFile.Name())
 	if err == nil {
 		t.Error("Expected an error for duplicate room names, but got nil")
 	}
@@ -295,7 +293,7 @@ func TestParseInput_InvalidRoomCoordinates(t *testing.T) {
 	}
 	tempFile.Close()
 
-	_, err = utils.ParseInput(tempFile.Name())
+	_, err = ParseInput(tempFile.Name())
 	if err == nil {
 		t.Error("Expected error for invalid room coordinates, but got nil")
 	}
@@ -328,7 +326,7 @@ room2-nonexistent
 	}
 	tempFile.Close()
 
-	_, err = utils.ParseInput(tempFile.Name())
+	_, err = ParseInput(tempFile.Name())
 	if err == nil {
 		t.Error("Expected an error for links referencing non-existent rooms, but got nil")
 	}
@@ -361,12 +359,67 @@ start-room1
 	}
 	tempFile.Close()
 
-	_, err = utils.ParseInput(tempFile.Name())
+	_, err = ParseInput(tempFile.Name())
 	if err == nil {
 		t.Error("Expected an error for duplicate tunnels, but got nil")
 	}
 	expectedError := "invalid data format, duplicate tunnel between rooms start and room1"
 	if err.Error() != expectedError {
 		t.Errorf("Expected error message '%s', but got '%s'", expectedError, err.Error())
+	}
+}
+
+func TestMin(t *testing.T) {
+	tests := []struct {
+		name     string
+		input1   string
+		input2   string
+		expected string
+	}{
+
+		{"First string smaller", "apple", "banana", "apple"},
+		{"Second string smaller", "banana", "apple", "apple"},
+		{"Equal strings", "cherry", "cherry", "cherry"},
+		{"First string empty", "", "nonempty", ""},
+		{"Second string empty", "nonempty", "", ""},
+		{"Both strings empty", "", "", ""},
+		{"Prefix comparison", "hello", "hellllo", "hellllo"},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			got := Min(test.input1, test.input2)
+
+			if got != test.expected {
+				t.Errorf("Test Min function failled got %v, expected %v", got, test.expected)
+			}
+		})
+	}
+}
+
+func TestMax(t *testing.T) {
+	tests := []struct {
+		name     string
+		input1   string
+		input2   string
+		expected string
+	}{
+		{"First string smaller", "apple", "banana", "banana"},
+		{"Second string smaller", "banana", "apple", "banana"},
+		{"Equal strings", "cherry", "cherry", "cherry"},
+		{"First string empty", "", "nonempty", "nonempty"},
+		{"Second string empty", "nonempty", "", "nonempty"},
+		{"Both strings empty", "", "", ""},
+		{"Prefix comparison", "hello", "hellllo", "hello"},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			got := Max(test.input1, test.input2)
+
+			if got != test.expected {
+				t.Errorf("Test Max failed got %v, expected %v", got, test.expected)
+			}
+		})
 	}
 }

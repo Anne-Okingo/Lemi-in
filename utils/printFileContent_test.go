@@ -1,12 +1,10 @@
-package test
+package utils
 
 import (
 	"fmt"
 	"os"
 	"reflect"
 	"testing"
-
-	"lemin/utils"
 )
 
 func TestValidContent(t *testing.T) {
@@ -62,7 +60,7 @@ func TestValidContent(t *testing.T) {
 			}
 			tempFile.Close()
 
-			finalContent, err := utils.ValidContent(tempFile.Name())
+			finalContent, err := ValidContent(tempFile.Name())
 			if (err != nil) || !reflect.DeepEqual(test.expected, finalContent) {
 				t.Fatal(fmt.Printf("Error Test ValidContent failed expected%v, got%v", test.expected, finalContent))
 			}

@@ -1,12 +1,10 @@
 package utils
 
 import (
-	// "container/list"
-	"fmt"
 	"lemin/models"
 )
 
-//Gets all paths from parsed Input then filters out the ones that conflict to minimize traffic
+// Gets all paths from parsed Input then filters out the ones that conflict to minimize traffic
 func GetAllPaths(rooms map[string]*models.ARoom, start, end string) [][]string {
 	var paths [][]string
 	queue := [][]string{}                  // Queue to hold paths
@@ -46,9 +44,7 @@ func GetAllPaths(rooms map[string]*models.ARoom, start, end string) [][]string {
 	}
 
 	//paths=SortPaths(paths)
-	fmt.Println("unfiltered", len(paths))
 	paths = FilterBestPaths(paths, start, end)
-	fmt.Println("filtered", len(paths))
 	return paths
 }
 
