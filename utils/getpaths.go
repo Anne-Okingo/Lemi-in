@@ -1,8 +1,6 @@
 package utils
 
 import (
-	// "container/list"
-	"fmt"
 	"lemin/models"
 )
 
@@ -46,9 +44,7 @@ func GetAllPaths(rooms map[string]*models.ARoom, start, end string) [][]string {
 	}
 
 	//paths=SortPaths(paths)
-	fmt.Println("unfiltered", len(paths))
 	paths = FilterBestPaths(paths, start, end)
-	fmt.Println("filtered", len(paths))
 	return paths
 }
 
